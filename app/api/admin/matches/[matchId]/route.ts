@@ -34,10 +34,19 @@ export async function PATCH(request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Invalid score update." }, { status: 400 });
   }
 
-  const { matchId } = await context.params;
-  const match = await updateMatch(matchId, parsed.data);
-  emitScoreUpdate(await getMatches());
+  try {
+    const { matchId } = await context.params;
+    const match = await updateMatch(matchId, parsed.data);
+    emitScoreUpdate(await getMatches());
 
-  return NextResponse.json({ match });
+    return NextResponse.json({ match });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : "Could not update the match.",
+      },
+      { status: 400 },
+    );
+  }
 }
 

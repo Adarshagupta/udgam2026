@@ -1,16 +1,19 @@
 import { hashSync } from "bcryptjs";
 
 import type {
+  CommitteeRegistrationSummary,
+  ContentPostSummary,
   EventSummary,
   GalleryItem,
   LiveMatch,
   SportSummary,
+  TeamSummary,
 } from "@/lib/types";
 import { asDataUri } from "@/lib/utils";
 
 const DEMO_ADMIN_EMAIL = "organizer@udgam.live";
 const DEMO_ADMIN_PASSWORD = "udgam-admin";
-const DEMO_STORE_VERSION = "slayer-inspired-v1";
+const DEMO_STORE_VERSION = "slayer-inspired-v3";
 
 interface DemoAdminUser {
   id: string;
@@ -22,9 +25,12 @@ interface DemoAdminUser {
 
 interface DemoStore {
   sports: SportSummary[];
+  teams: TeamSummary[];
   events: EventSummary[];
   matches: LiveMatch[];
   gallery: GalleryItem[];
+  posts: ContentPostSummary[];
+  committeeRegistrations: CommitteeRegistrationSummary[];
   admins: DemoAdminUser[];
 }
 
@@ -115,6 +121,62 @@ function buildDemoStore(): DemoStore {
         slug: "volleyball",
         accent: "#7c6cf2",
         tagline: "High arcs, hard blocks, and clean last-point drama.",
+      },
+    ],
+    teams: [
+      {
+        id: "team-falcon-house",
+        name: "Falcon House",
+        slug: "falcon-house",
+        shortName: "FAL",
+        institution: "UDGAM University",
+        sportId: "sport-basketball",
+        sportName: "Basketball",
+      },
+      {
+        id: "team-blaze-unit",
+        name: "Blaze Unit",
+        slug: "blaze-unit",
+        shortName: "BLZ",
+        institution: "UDGAM University",
+        sportId: "sport-basketball",
+        sportName: "Basketball",
+      },
+      {
+        id: "team-river-strikers",
+        name: "River Strikers",
+        slug: "river-strikers",
+        shortName: "RIV",
+        institution: "UDGAM University",
+        sportId: "sport-football",
+        sportName: "Football",
+      },
+      {
+        id: "team-nova-eleven",
+        name: "Nova Eleven",
+        slug: "nova-eleven",
+        shortName: "NOV",
+        institution: "UDGAM University",
+        sportId: "sport-football",
+        sportName: "Football",
+      },
+      {
+        id: "team-feather-force",
+        name: "Feather Force",
+        slug: "feather-force",
+        shortName: "FFT",
+        institution: "UDGAM University",
+        sportId: "sport-badminton",
+        sportName: "Badminton",
+      },
+      {
+        id: "team-rapid-flick",
+        name: "Rapid Flick",
+        slug: "rapid-flick",
+        shortName: "RFL",
+        institution: "UDGAM University",
+        sportId: "sport-badminton",
+        sportName: "Badminton",
       },
     ],
     events: [
@@ -219,6 +281,67 @@ function buildDemoStore(): DemoStore {
         url: makePoster("ARC", "#ebb04a", "Indoor court energy"),
         featured: false,
         createdAt: "2026-04-10T11:05:00.000Z",
+      },
+    ],
+    committeeRegistrations: [
+      {
+        id: "committee-reg-001",
+        category: "COMMITTEE",
+        title: "Cultural Committee",
+        headName: "Aanya Mehta",
+        coHeadName: "Rohan Suri",
+        imageUrl: makePoster("CULTURAL", "#df4f3e", "Committee desk registration"),
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: "committee-reg-002",
+        category: "EXECUTIVE",
+        title: "Executive Operations",
+        headName: "Diya Shah",
+        coHeadName: "Kabir Nair",
+        imageUrl: makePoster("EXECUTIVE", "#1ca79a", "Executive lead registration"),
+        createdAt: new Date().toISOString(),
+      },
+    ],
+    posts: [
+      {
+        id: "post-001",
+        title: "Opening Ceremony Guide",
+        slug: "opening-ceremony-guide",
+        summary: "What teams, spectators, and volunteers should know before the first whistle.",
+        body: "The opening ceremony begins with the campus parade, a short address from the organizing desk, and the first fixture callouts for each arena. Teams should report 30 minutes early to their assigned assembly zones.",
+        type: "NEWS",
+        published: true,
+        publishedAt: "2026-04-09T16:00:00.000Z",
+        createdAt: "2026-04-09T16:00:00.000Z",
+        sportName: null,
+        authorName: "UDGAM Control Desk",
+      },
+      {
+        id: "post-002",
+        title: "Behind the Basketball Desk",
+        slug: "behind-the-basketball-desk",
+        summary: "A quick look at how the live score team keeps the 3x3 court updated.",
+        body: "The basketball desk runs with one spotter, one clock keeper, and one publishing operator. The team updates possessions, score swings, and final possessions directly from the admin desk so the public site stays current.",
+        type: "BLOG",
+        published: true,
+        publishedAt: "2026-04-10T07:45:00.000Z",
+        createdAt: "2026-04-10T07:45:00.000Z",
+        sportName: "Basketball",
+        authorName: "UDGAM Control Desk",
+      },
+      {
+        id: "post-003",
+        title: "Night Finals Traffic Plan",
+        slug: "night-finals-traffic-plan",
+        summary: "Entry gates, spectator lanes, and floodlight turf access for the evening block.",
+        body: "The north and east gates open one hour before kickoff. Volunteers will route player squads directly to the warm-up zone, while spectators enter through the marked concourse and seating lanes.",
+        type: "NEWS",
+        published: false,
+        publishedAt: null,
+        createdAt: "2026-04-10T09:30:00.000Z",
+        sportName: "Football",
+        authorName: "UDGAM Control Desk",
       },
     ],
     admins: [

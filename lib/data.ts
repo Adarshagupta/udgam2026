@@ -1,37 +1,94 @@
 import { randomUUID } from "node:crypto";
 
-import { MatchStatus } from "@prisma/client";
+import { MatchStatus, PostType } from "@prisma/client";
 
 import { getAdminHint } from "@/lib/auth";
 import { getDemoStore } from "@/lib/demo-data";
 import { env } from "@/lib/env";
-import { prisma } from "@/lib/prisma";
+import { prisma, resetPrismaClient } from "@/lib/prisma";
 import type {
+  CommitteeRegistrationSummary,
+  ContentPostSummary,
+  CreateCommitteeRegistrationInput,
+  CreateContentPostInput,
+  CreateSportInput,
   CreateGalleryImageInput,
   CreateMatchInput,
+  CreateTeamInput,
   DashboardSnapshot,
   EventSummary,
   GalleryItem,
   LiveMatch,
   ScheduleEntry,
   SportSummary,
+  TeamSummary,
+  UpdateCommitteeRegistrationInput,
   UpdateMatchInput,
 } from "@/lib/types";
 import { slugify } from "@/lib/utils";
 
-async function withFallback<T>(
+async function withReadFallback<T>(
   operation: () => Promise<T>,
   fallback: () => T | Promise<T>,
 ) {
   try {
     return await operation();
-  } catch {
-    return fallback();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const errorCode =
+      typeof error === "object" &&
+      error &&
+      "code" in error &&
+      typeof error.code === "string"
+        ? error.code
+        : "";
+    const isTransientConnectionIssue =
+      errorCode === "P1017" ||
+      message.includes("Server has closed the connection") ||
+      message.includes("Connection terminated unexpectedly") ||
+      message.includes("Can't reach database server") ||
+      message.includes("ConnectionClosed");
+
+    if (isTransientConnectionIssue) {
+      await resetPrismaClient();
+
+      try {
+        return await operation();
+      } catch (retryError) {
+        if (env.demoMode) {
+          return fallback();
+        }
+
+        throw retryError;
+      }
+    }
+
+    if (env.demoMode) {
+      return fallback();
+    }
+
+    throw error;
   }
 }
 
 function shouldUseDemoData() {
   return env.demoMode || !prisma;
+}
+
+async function buildAvailableSlug(
+  value: string,
+  exists: (slug: string) => Promise<boolean> | boolean,
+) {
+  const base = slugify(value) || `entry-${randomUUID().slice(0, 8)}`;
+  let slug = base;
+  let suffix = 2;
+
+  while (await exists(slug)) {
+    slug = `${base}-${suffix}`;
+    suffix += 1;
+  }
+
+  return slug;
 }
 
 function mapMatch(match: {
@@ -82,6 +139,90 @@ function mapGallery(item: {
   };
 }
 
+function mapCommitteeRegistration(item: {
+  id: string;
+  category: "COMMITTEE" | "EXECUTIVE";
+  title: string;
+  headName: string;
+  coHeadName: string;
+  imageUrl: string;
+  createdAt: Date;
+}): CommitteeRegistrationSummary {
+  return {
+    id: item.id,
+    category: item.category,
+    title: item.title,
+    headName: item.headName,
+    coHeadName: item.coHeadName,
+    imageUrl: item.imageUrl,
+    createdAt: item.createdAt.toISOString(),
+  };
+}
+
+function mapSport(sport: {
+  id: string;
+  name: string;
+  slug: string;
+  accentColor: string | null;
+  tagline: string | null;
+}): SportSummary {
+  return {
+    id: sport.id,
+    name: sport.name,
+    slug: sport.slug,
+    accent: sport.accentColor ?? "#f35c38",
+    tagline: sport.tagline ?? "Built for UDGAM pace.",
+  };
+}
+
+function mapTeam(team: {
+  id: string;
+  name: string;
+  slug: string;
+  shortName: string | null;
+  institution: string | null;
+  sportId: string | null;
+  sport: { name: string } | null;
+}): TeamSummary {
+  return {
+    id: team.id,
+    name: team.name,
+    slug: team.slug,
+    shortName: team.shortName ?? team.name.slice(0, 3).toUpperCase(),
+    institution: team.institution ?? "UDGAM",
+    sportId: team.sportId,
+    sportName: team.sport?.name ?? "Independent",
+  };
+}
+
+function mapPost(post: {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string;
+  body: string;
+  type: PostType;
+  published: boolean;
+  publishedAt: Date | null;
+  createdAt: Date;
+  sport: { name: string } | null;
+  author: { name: string } | null;
+}): ContentPostSummary {
+  return {
+    id: post.id,
+    title: post.title,
+    slug: post.slug,
+    summary: post.summary,
+    body: post.body,
+    type: post.type,
+    published: post.published,
+    publishedAt: post.publishedAt?.toISOString() ?? null,
+    createdAt: post.createdAt.toISOString(),
+    sportName: post.sport?.name ?? null,
+    authorName: post.author?.name ?? null,
+  };
+}
+
 function sortMatches(matches: LiveMatch[]) {
   return [...matches].sort(
     (left, right) =>
@@ -103,14 +244,120 @@ function getDemoImages(featuredOnly = false) {
   return featuredOnly ? images.filter((image) => image.featured) : images;
 }
 
+function getDemoCommitteeRegistrations() {
+  return [...getDemoStore().committeeRegistrations].sort(
+    (left, right) =>
+      new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
+  );
+}
+
+function getDemoTeams() {
+  return [...getDemoStore().teams].sort((left, right) => left.name.localeCompare(right.name));
+}
+
+function getDemoPosts(options?: {
+  type?: ContentPostSummary["type"];
+  publishedOnly?: boolean;
+}) {
+  const type = options?.type;
+  const publishedOnly = options?.publishedOnly ?? false;
+  const posts = [...getDemoStore().posts].sort((left, right) => {
+    const leftValue = left.publishedAt ?? left.createdAt;
+    const rightValue = right.publishedAt ?? right.createdAt;
+    return new Date(rightValue).getTime() - new Date(leftValue).getTime();
+  });
+
+  return posts.filter((post) => {
+    if (type && post.type !== type) {
+      return false;
+    }
+
+    if (publishedOnly && !post.published) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+function getDemoSportLabel(sportId?: string, fallback?: string) {
+  if (sportId) {
+    const sport = getDemoStore().sports.find((item) => item.id === sportId);
+    if (sport) {
+      return sport.name;
+    }
+  }
+
+  return fallback ?? "Sport";
+}
+
+function getDemoTeamLabel(teamId?: string, fallback?: string) {
+  if (teamId) {
+    const team = getDemoStore().teams.find((item) => item.id === teamId);
+    if (team) {
+      return team.name;
+    }
+  }
+
+  return fallback ?? "Team";
+}
+
+function createDemoSport(input: CreateSportInput) {
+  const store = getDemoStore();
+  const slug = slugify(input.name);
+
+  if (store.sports.some((sport) => sport.slug === slug)) {
+    throw new Error("Sport already exists.");
+  }
+
+  const sport: SportSummary = {
+    id: `sport-${randomUUID()}`,
+    name: input.name.trim(),
+    slug,
+    accent: input.accent?.trim() || "#f35c38",
+    tagline: input.tagline?.trim() || "Freshly added from the admin desk.",
+  };
+
+  store.sports.push(sport);
+  store.sports.sort((left, right) => left.name.localeCompare(right.name));
+  return sport;
+}
+
+function createDemoTeam(input: CreateTeamInput) {
+  const store = getDemoStore();
+  const slug = slugify(input.name);
+
+  if (store.teams.some((team) => team.slug === slug)) {
+    throw new Error("Team already exists.");
+  }
+
+  const sport = input.sportId
+    ? store.sports.find((item) => item.id === input.sportId) ?? null
+    : null;
+
+  const team: TeamSummary = {
+    id: `team-${randomUUID()}`,
+    name: input.name.trim(),
+    slug,
+    shortName: input.shortName?.trim() || input.name.trim().slice(0, 3).toUpperCase(),
+    institution: input.institution?.trim() || "UDGAM",
+    sportId: sport?.id ?? null,
+    sportName: sport?.name ?? "Independent",
+  };
+
+  store.teams.push(team);
+  store.teams.sort((left, right) => left.name.localeCompare(right.name));
+  return team;
+}
+
 function createDemoMatch(input: CreateMatchInput) {
   const store = getDemoStore();
   const match: LiveMatch = {
     id: `match-${randomUUID()}`,
-    sport: input.sport,
+    sport: getDemoSportLabel(input.sportId, input.sport),
     eventTitle: input.eventTitle,
-    homeTeam: input.homeTeam,
-    awayTeam: input.awayTeam,
+    homeTeam: getDemoTeamLabel(input.homeTeamId, input.homeTeam),
+    awayTeam: getDemoTeamLabel(input.awayTeamId, input.awayTeam),
     homeScore: 0,
     awayScore: 0,
     status: input.status,
@@ -154,26 +401,105 @@ function createDemoGalleryImage(input: CreateGalleryImageInput) {
   return image;
 }
 
+function createDemoCommitteeRegistration(input: CreateCommitteeRegistrationInput) {
+  const registration: CommitteeRegistrationSummary = {
+    id: `committee-registration-${randomUUID()}`,
+    category: input.category,
+    title: input.title.trim(),
+    headName: input.headName.trim(),
+    coHeadName: input.coHeadName.trim(),
+    imageUrl: input.imageUrl,
+    createdAt: new Date().toISOString(),
+  };
+
+  getDemoStore().committeeRegistrations.unshift(registration);
+  return registration;
+}
+
+function updateDemoCommitteeRegistration(
+  registrationId: string,
+  input: UpdateCommitteeRegistrationInput,
+) {
+  const target = getDemoStore().committeeRegistrations.find(
+    (registration) => registration.id === registrationId,
+  );
+
+  if (!target) {
+    throw new Error("Registration not found.");
+  }
+
+  target.category = input.category;
+  target.title = input.title.trim();
+  target.headName = input.headName.trim();
+  target.coHeadName = input.coHeadName.trim();
+
+  if (input.imageUrl) {
+    target.imageUrl = input.imageUrl;
+  }
+
+  return target;
+}
+
+async function createDemoPost(input: CreateContentPostInput) {
+  const store = getDemoStore();
+  const slug = await buildAvailableSlug(input.title, (value) =>
+    store.posts.some((post) => post.slug === value),
+  );
+  const sport = input.sportId
+    ? store.sports.find((item) => item.id === input.sportId) ?? null
+    : null;
+  const now = new Date().toISOString();
+  const published = input.published ?? true;
+  const post: ContentPostSummary = {
+    id: `post-${randomUUID()}`,
+    title: input.title.trim(),
+    slug,
+    summary: input.summary.trim(),
+    body: input.body.trim(),
+    type: input.type,
+    published,
+    publishedAt: published ? now : null,
+    createdAt: now,
+    sportName: sport?.name ?? null,
+    authorName: "UDGAM Admin",
+  };
+
+  store.posts.unshift(post);
+  return post;
+}
+
 export async function getSports(): Promise<SportSummary[]> {
   if (shouldUseDemoData()) {
     return getDemoStore().sports;
   }
 
-  return withFallback(
+  return withReadFallback(
     async () => {
       const sports = await prisma!.sport.findMany({
         orderBy: { name: "asc" },
       });
 
-      return sports.map((sport) => ({
-        id: sport.id,
-        name: sport.name,
-        slug: sport.slug,
-        accent: sport.accentColor ?? "#f35c38",
-        tagline: sport.tagline ?? "Built for UDGAM pace.",
-      }));
+      return sports.map(mapSport);
     },
     () => getDemoStore().sports,
+  );
+}
+
+export async function getTeams(): Promise<TeamSummary[]> {
+  if (shouldUseDemoData()) {
+    return getDemoTeams();
+  }
+
+  return withReadFallback(
+    async () => {
+      const teams = await prisma!.team.findMany({
+        include: { sport: true },
+        orderBy: { name: "asc" },
+      });
+
+      return teams.map(mapTeam);
+    },
+    () => getDemoTeams(),
   );
 }
 
@@ -182,7 +508,7 @@ export async function getEvents(): Promise<EventSummary[]> {
     return getDemoStore().events;
   }
 
-  return withFallback(
+  return withReadFallback(
     async () => {
       const events = await prisma!.event.findMany({
         include: { sport: true },
@@ -209,7 +535,7 @@ export async function getMatches(options?: { featuredOnly?: boolean }) {
     return getDemoMatches(featuredOnly);
   }
 
-  return withFallback(
+  return withReadFallback(
     async () => {
       const matches = await prisma!.match.findMany({
         where: featuredOnly ? { featured: true } : undefined,
@@ -235,7 +561,7 @@ export async function getGalleryImages(options?: { featuredOnly?: boolean }) {
     return getDemoImages(featuredOnly);
   }
 
-  return withFallback(
+  return withReadFallback(
     async () => {
       const images = await prisma!.galleryImage.findMany({
         where: featuredOnly ? { featured: true } : undefined,
@@ -245,6 +571,54 @@ export async function getGalleryImages(options?: { featuredOnly?: boolean }) {
       return images.map(mapGallery);
     },
     () => getDemoImages(featuredOnly),
+  );
+}
+
+export async function getContentPosts(options?: {
+  type?: ContentPostSummary["type"];
+  publishedOnly?: boolean;
+}): Promise<ContentPostSummary[]> {
+  const type = options?.type;
+  const publishedOnly = options?.publishedOnly ?? false;
+
+  if (shouldUseDemoData()) {
+    return getDemoPosts({ type, publishedOnly });
+  }
+
+  return withReadFallback(
+    async () => {
+      const posts = await prisma!.contentPost.findMany({
+        where: {
+          ...(type ? { type } : {}),
+          ...(publishedOnly ? { published: true } : {}),
+        },
+        include: {
+          sport: true,
+          author: true,
+        },
+        orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+      });
+
+      return posts.map(mapPost);
+    },
+    () => getDemoPosts({ type, publishedOnly }),
+  );
+}
+
+export async function getCommitteeRegistrations(): Promise<CommitteeRegistrationSummary[]> {
+  if (shouldUseDemoData()) {
+    return getDemoCommitteeRegistrations();
+  }
+
+  return withReadFallback(
+    async () => {
+      const registrations = await prisma!.committeeRegistration.findMany({
+        orderBy: { createdAt: "desc" },
+      });
+
+      return registrations.map(mapCommitteeRegistration);
+    },
+    () => getDemoCommitteeRegistrations(),
   );
 }
 
@@ -289,6 +663,26 @@ async function ensureSport(name: string) {
   });
 }
 
+async function resolveSport(input: CreateMatchInput) {
+  if (input.sportId) {
+    const sport = await prisma!.sport.findUnique({
+      where: { id: input.sportId },
+    });
+
+    if (!sport) {
+      throw new Error("Selected sport was not found.");
+    }
+
+    return sport;
+  }
+
+  if (!input.sport?.trim()) {
+    throw new Error("Sport is required.");
+  }
+
+  return ensureSport(input.sport);
+}
+
 async function ensureEvent(title: string, sportId?: string) {
   const slug = slugify(title);
   const existing = await prisma!.event.findUnique({ where: { slug } });
@@ -328,49 +722,142 @@ async function ensureTeam(name: string, sportId?: string) {
   });
 }
 
+async function resolveTeam(teamId: string | undefined, fallbackName: string | undefined, sportId?: string) {
+  if (teamId) {
+    const team = await prisma!.team.findUnique({
+      where: { id: teamId },
+    });
+
+    if (!team) {
+      throw new Error("Selected team was not found.");
+    }
+
+    return team;
+  }
+
+  if (!fallbackName?.trim()) {
+    throw new Error("Team name is required.");
+  }
+
+  return ensureTeam(fallbackName, sportId);
+}
+
+export async function createSport(input: CreateSportInput) {
+  if (shouldUseDemoData()) {
+    return createDemoSport(input);
+  }
+
+  const slug = slugify(input.name);
+  const existing = await prisma!.sport.findUnique({
+    where: { slug },
+  });
+
+  if (existing) {
+    throw new Error("Sport already exists.");
+  }
+
+  const sport = await prisma!.sport.create({
+    data: {
+      name: input.name.trim(),
+      slug,
+      accentColor: input.accent?.trim() || "#f35c38",
+      tagline: input.tagline?.trim() || "Freshly added from the admin desk.",
+    },
+  });
+
+  return mapSport(sport);
+}
+
+export async function createTeam(input: CreateTeamInput) {
+  if (shouldUseDemoData()) {
+    return createDemoTeam(input);
+  }
+
+  const slug = slugify(input.name);
+  const existing = await prisma!.team.findUnique({
+    where: { slug },
+  });
+
+  if (existing) {
+    throw new Error("Team already exists.");
+  }
+
+  if (input.sportId) {
+    const sport = await prisma!.sport.findUnique({
+      where: { id: input.sportId },
+    });
+
+    if (!sport) {
+      throw new Error("Selected sport was not found.");
+    }
+  }
+
+  const team = await prisma!.team.create({
+    data: {
+      name: input.name.trim(),
+      slug,
+      shortName: input.shortName?.trim() || input.name.trim().slice(0, 3).toUpperCase(),
+      institution: input.institution?.trim() || "UDGAM",
+      sportId: input.sportId || null,
+    },
+    include: {
+      sport: true,
+    },
+  });
+
+  return mapTeam(team);
+}
+
 export async function createMatch(input: CreateMatchInput) {
   if (shouldUseDemoData()) {
     return createDemoMatch(input);
   }
 
-  return withFallback(
-    async () => {
-      const sport = await ensureSport(input.sport);
-      const event = await ensureEvent(input.eventTitle, sport.id);
-      const homeTeam = await ensureTeam(input.homeTeam, sport.id);
-      const awayTeam = await ensureTeam(input.awayTeam, sport.id);
+  const sport = await resolveSport(input);
+  const event = await ensureEvent(input.eventTitle, sport.id);
+  const homeTeam = await resolveTeam(input.homeTeamId, input.homeTeam, sport.id);
+  const awayTeam = await resolveTeam(input.awayTeamId, input.awayTeam, sport.id);
 
-      const match = await prisma!.match.create({
-        data: {
-          sportId: sport.id,
-          eventId: event.id,
-          homeTeamId: homeTeam.id,
-          awayTeamId: awayTeam.id,
-          venue: input.venue,
-          startsAt: new Date(input.startsAt),
+  if (homeTeam.id === awayTeam.id) {
+    throw new Error("Home and away teams must be different.");
+  }
+
+  if (homeTeam.sportId && homeTeam.sportId !== sport.id) {
+    throw new Error("The selected home team is linked to a different sport.");
+  }
+
+  if (awayTeam.sportId && awayTeam.sportId !== sport.id) {
+    throw new Error("The selected away team is linked to a different sport.");
+  }
+
+  const match = await prisma!.match.create({
+    data: {
+      sportId: sport.id,
+      eventId: event.id,
+      homeTeamId: homeTeam.id,
+      awayTeamId: awayTeam.id,
+      venue: input.venue,
+      startsAt: new Date(input.startsAt),
+      status: input.status,
+      featured: input.featured ?? false,
+      scoreSnapshots: {
+        create: {
+          homeScore: 0,
+          awayScore: 0,
           status: input.status,
-          featured: input.featured ?? false,
-          scoreSnapshots: {
-            create: {
-              homeScore: 0,
-              awayScore: 0,
-              status: input.status,
-              note: "Match created from admin desk.",
-            },
-          },
+          note: "Match created from admin desk.",
         },
-        include: {
-          sport: true,
-          event: true,
-          homeTeam: true,
-          awayTeam: true,
-        },
-      });
-
-      return mapMatch(match);
+      },
     },
-    () => createDemoMatch(input),
-  );
+    include: {
+      sport: true,
+      event: true,
+      homeTeam: true,
+      awayTeam: true,
+    },
+  });
+
+  return mapMatch(match);
 }
 
 export async function updateMatch(matchId: string, input: UpdateMatchInput) {
@@ -378,35 +865,30 @@ export async function updateMatch(matchId: string, input: UpdateMatchInput) {
     return updateDemoMatch(matchId, input);
   }
 
-  return withFallback(
-    async () => {
-      const updated = await prisma!.match.update({
-        where: { id: matchId },
-        data: {
+  const updated = await prisma!.match.update({
+    where: { id: matchId },
+    data: {
+      homeScore: input.homeScore,
+      awayScore: input.awayScore,
+      status: input.status,
+      featured: input.featured,
+      scoreSnapshots: {
+        create: {
           homeScore: input.homeScore,
           awayScore: input.awayScore,
           status: input.status,
-          featured: input.featured,
-          scoreSnapshots: {
-            create: {
-              homeScore: input.homeScore,
-              awayScore: input.awayScore,
-              status: input.status,
-            },
-          },
         },
-        include: {
-          sport: true,
-          event: true,
-          homeTeam: true,
-          awayTeam: true,
-        },
-      });
-
-      return mapMatch(updated);
+      },
     },
-    () => updateDemoMatch(matchId, input),
-  );
+    include: {
+      sport: true,
+      event: true,
+      homeTeam: true,
+      awayTeam: true,
+    },
+  });
+
+  return mapMatch(updated);
 }
 
 export async function createGalleryImage(input: CreateGalleryImageInput) {
@@ -414,32 +896,130 @@ export async function createGalleryImage(input: CreateGalleryImageInput) {
     return createDemoGalleryImage(input);
   }
 
-  return withFallback(
-    async () => {
-      const image = await prisma!.galleryImage.create({
-        data: {
-          title: input.title,
-          caption: input.caption,
-          url: input.url,
-          featured: input.featured ?? false,
-          uploadedById: input.uploadedById,
-          r2Key: input.r2Key,
-        },
-      });
-
-      return mapGallery(image);
+  const image = await prisma!.galleryImage.create({
+    data: {
+      title: input.title,
+      caption: input.caption,
+      url: input.url,
+      featured: input.featured ?? false,
+      uploadedById: input.uploadedById,
+      r2Key: input.r2Key,
     },
-    () => createDemoGalleryImage(input),
-  );
+  });
+
+  return mapGallery(image);
+}
+
+export async function createContentPost(input: CreateContentPostInput) {
+  if (shouldUseDemoData()) {
+    return createDemoPost(input);
+  }
+
+  if (input.sportId) {
+    const sport = await prisma!.sport.findUnique({
+      where: { id: input.sportId },
+    });
+
+    if (!sport) {
+      throw new Error("Selected sport was not found.");
+    }
+  }
+
+  const slug = await buildAvailableSlug(input.title, async (value) => {
+    const existing = await prisma!.contentPost.findUnique({
+      where: { slug: value },
+    });
+
+    return Boolean(existing);
+  });
+
+  const published = input.published ?? true;
+  const post = await prisma!.contentPost.create({
+    data: {
+      title: input.title.trim(),
+      slug,
+      summary: input.summary.trim(),
+      body: input.body.trim(),
+      type: input.type,
+      published,
+      publishedAt: published ? new Date() : null,
+      sportId: input.sportId || null,
+      authorId: input.authorId,
+    },
+    include: {
+      sport: true,
+      author: true,
+    },
+  });
+
+  return mapPost(post);
+}
+
+export async function createCommitteeRegistration(input: CreateCommitteeRegistrationInput) {
+  if (shouldUseDemoData()) {
+    return createDemoCommitteeRegistration(input);
+  }
+
+  const registration = await prisma!.committeeRegistration.create({
+    data: {
+      category: input.category,
+      title: input.title.trim(),
+      headName: input.headName.trim(),
+      coHeadName: input.coHeadName.trim(),
+      imageUrl: input.imageUrl,
+      imageR2Key: input.imageR2Key,
+    },
+  });
+
+  return mapCommitteeRegistration(registration);
+}
+
+export async function updateCommitteeRegistration(
+  registrationId: string,
+  input: UpdateCommitteeRegistrationInput,
+) {
+  if (shouldUseDemoData()) {
+    return updateDemoCommitteeRegistration(registrationId, input);
+  }
+
+  const registration = await prisma!.committeeRegistration.update({
+    where: { id: registrationId },
+    data: {
+      category: input.category,
+      title: input.title.trim(),
+      headName: input.headName.trim(),
+      coHeadName: input.coHeadName.trim(),
+      ...(input.imageUrl
+        ? {
+            imageUrl: input.imageUrl,
+            imageR2Key: input.imageR2Key,
+          }
+        : {}),
+    },
+  });
+
+  return mapCommitteeRegistration(registration);
 }
 
 export async function getDashboardSnapshot(): Promise<DashboardSnapshot> {
-  const [matches, gallery] = await Promise.all([getMatches(), getGalleryImages()]);
+  const [matches, gallery, sports, teams, posts, committeeRegistrations] = await Promise.all([
+    getMatches(),
+    getGalleryImages(),
+    getSports(),
+    getTeams(),
+    getContentPosts(),
+    getCommitteeRegistrations(),
+  ]);
 
   return {
     matches,
     gallery,
+    sports,
+    teams,
+    posts,
+    committeeRegistrations,
     r2Configured: env.r2.configured,
+    r2MaxUploadSizeMb: env.r2.maxUploadSizeMb,
     demoMode: env.demoMode,
     adminHint: getAdminHint(),
   };

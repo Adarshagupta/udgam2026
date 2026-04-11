@@ -25,6 +25,12 @@ export default function ContactPage() {
           <h2 className={styles.title}>Score Control</h2>
           <p className={styles.text}>scores@udgam.live</p>
         </article>
+        <article className={styles.card}>
+          <p className={styles.eyebrow}>Registrations</p>
+          <h2 className={styles.title}>Committee Desk</h2>
+          <p className={styles.text}>Separate committee and executive registration flow.</p>
+          <Link href="/register/committee">Open registration</Link>
+        </article>
         <article className={styles.darkCard}>
           <p className={styles.darkEyebrow}>Organizer access</p>
           <h2 className={styles.title}>Admin Desk</h2>

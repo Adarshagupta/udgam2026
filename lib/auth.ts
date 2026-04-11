@@ -1,10 +1,44 @@
-import { compare } from "bcryptjs";
+import { compare, hashSync } from "bcryptjs";
+import { AdminRole } from "@prisma/client";
 import { getServerSession, type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 import { getDemoAdminCredentials, getDemoStore } from "@/lib/demo-data";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
+
+let bootstrapPromise: Promise<void> | null = null;
+
+export async function ensureBootstrapAdmin() {
+  if (env.demoMode || !prisma) {
+    return;
+  }
+
+  if (!bootstrapPromise) {
+    bootstrapPromise = (async () => {
+      const existing = await prisma.adminUser.findUnique({
+        where: { email: env.admin.email },
+      });
+
+      if (existing) {
+        return;
+      }
+
+      await prisma.adminUser.create({
+        data: {
+          email: env.admin.email,
+          name: env.admin.name,
+          passwordHash: hashSync(env.admin.password, 10),
+          role: AdminRole.SUPER_ADMIN,
+        },
+      });
+    })().finally(() => {
+      bootstrapPromise = null;
+    });
+  }
+
+  await bootstrapPromise;
+}
 
 export const authOptions: NextAuthOptions = {
   secret: env.nextAuthSecret,
@@ -47,6 +81,8 @@ export const authOptions: NextAuthOptions = {
             role: demoUser.role,
           };
         }
+
+        await ensureBootstrapAdmin();
 
         const admin = await prisma.adminUser.findUnique({
           where: { email: credentials.email },

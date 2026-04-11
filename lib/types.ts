@@ -5,12 +5,39 @@ export type MatchStatus =
   | "HALFTIME"
   | "FINAL";
 
+export type ContentPostType = "BLOG" | "NEWS";
+export type RegistrationCategory = "COMMITTEE" | "EXECUTIVE";
+
 export interface SportSummary {
   id: string;
   name: string;
   slug: string;
   accent: string;
   tagline: string;
+}
+
+export interface TeamSummary {
+  id: string;
+  name: string;
+  slug: string;
+  shortName: string;
+  institution: string;
+  sportId: string | null;
+  sportName: string;
+}
+
+export interface ContentPostSummary {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string;
+  body: string;
+  type: ContentPostType;
+  published: boolean;
+  publishedAt: string | null;
+  createdAt: string;
+  sportName: string | null;
+  authorName: string | null;
 }
 
 export interface EventSummary {
@@ -54,10 +81,25 @@ export interface ScheduleEntry {
   type: "EVENT" | "MATCH";
 }
 
+export interface CommitteeRegistrationSummary {
+  id: string;
+  category: RegistrationCategory;
+  title: string;
+  headName: string;
+  coHeadName: string;
+  imageUrl: string;
+  createdAt: string;
+}
+
 export interface DashboardSnapshot {
   matches: LiveMatch[];
   gallery: GalleryItem[];
+  sports: SportSummary[];
+  teams: TeamSummary[];
+  posts: ContentPostSummary[];
+  committeeRegistrations: CommitteeRegistrationSummary[];
   r2Configured: boolean;
+  r2MaxUploadSizeMb: number;
   demoMode: boolean;
   adminHint: {
     email: string;
@@ -66,10 +108,13 @@ export interface DashboardSnapshot {
 }
 
 export interface CreateMatchInput {
-  sport: string;
+  sportId?: string;
+  sport?: string;
   eventTitle: string;
-  homeTeam: string;
-  awayTeam: string;
+  homeTeamId?: string;
+  awayTeamId?: string;
+  homeTeam?: string;
+  awayTeam?: string;
   venue: string;
   startsAt: string;
   status: MatchStatus;
@@ -92,3 +137,43 @@ export interface CreateGalleryImageInput {
   r2Key?: string;
 }
 
+export interface CreateSportInput {
+  name: string;
+  accent?: string;
+  tagline?: string;
+}
+
+export interface CreateTeamInput {
+  name: string;
+  shortName?: string;
+  institution?: string;
+  sportId?: string;
+}
+
+export interface CreateContentPostInput {
+  type: ContentPostType;
+  title: string;
+  summary: string;
+  body: string;
+  sportId?: string;
+  published?: boolean;
+  authorId?: string;
+}
+
+export interface CreateCommitteeRegistrationInput {
+  category: RegistrationCategory;
+  title: string;
+  headName: string;
+  coHeadName: string;
+  imageUrl: string;
+  imageR2Key?: string;
+}
+
+export interface UpdateCommitteeRegistrationInput {
+  category: RegistrationCategory;
+  title: string;
+  headName: string;
+  coHeadName: string;
+  imageUrl?: string;
+  imageR2Key?: string;
+}

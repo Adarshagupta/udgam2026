@@ -19,6 +19,16 @@ enum AdminRole {
   SUPER_ADMIN
 }
 
+enum PostType {
+  BLOG
+  NEWS
+}
+
+enum RegistrationCategory {
+  COMMITTEE
+  EXECUTIVE
+}
+
 model Sport {
   id          String   @id @default(cuid())
   name        String
@@ -31,6 +41,7 @@ model Sport {
   events Event[]
   teams  Team[]
   matches Match[]
+  posts   ContentPost[]
 }
 
 model Event {
@@ -121,4 +132,40 @@ model AdminUser {
   updatedAt    DateTime    @updatedAt
 
   galleryImages GalleryImage[]
+  posts         ContentPost[]
+}
+
+model ContentPost {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  summary     String
+  body        String
+  type        PostType  @default(NEWS)
+  published   Boolean   @default(true)
+  publishedAt DateTime?
+  sportId     String?
+  authorId    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  sport  Sport?     @relation(fields: [sportId], references: [id], onDelete: SetNull)
+  author AdminUser? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([type, publishedAt])
+}
+
+model CommitteeRegistration {
+  id         String               @id @default(cuid())
+  category   RegistrationCategory
+  title      String
+  headName   String
+  coHeadName String
+  imageUrl   String
+  imageR2Key String?
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  @@index([createdAt])
+  @@index([category, createdAt])
 }

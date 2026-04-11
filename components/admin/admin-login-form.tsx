@@ -40,17 +40,40 @@ export function AdminLoginForm({ demoHint }: AdminLoginFormProps) {
   }
 
   return (
-    <section className={styles.card}>
-      <div className={styles.shell}>
-        <p className={styles.text}>Organizer access</p>
-        <h2 className={styles.title}>Unlock the Live Desk</h2>
-        <p className={styles.text}>
-          Scores and gallery uploads publish instantly to the public site from here.
-        </p>
+    <div className={styles.authShell}>
+      <section className={styles.authHero}>
+        <p className={styles.sidebarEyebrow}>UDGAM ADMIN</p>
+        <h1 className={styles.authTitle}>Admin Dashboard</h1>
+        <p className={styles.authText}>Sports, scores, posts, media.</p>
+
+        <div className={styles.authHighlights}>
+          <article className={styles.authHighlight}>
+            <span className={styles.authHighlightLabel}>Sports</span>
+            <strong>Teams and fixtures</strong>
+          </article>
+          <article className={styles.authHighlight}>
+            <span className={styles.authHighlightLabel}>Updates</span>
+            <strong>News and blog</strong>
+          </article>
+          <article className={styles.authHighlight}>
+            <span className={styles.authHighlightLabel}>Live</span>
+            <strong>Scores and gallery</strong>
+          </article>
+        </div>
+      </section>
+
+      <section className={styles.loginCard}>
+        <div className={styles.loginHeader}>
+          <p className={styles.sectionEyebrow}>Organizer access</p>
+          <h2 className={styles.loginTitle}>Sign in</h2>
+          <p className={styles.sectionText}>Use organizer access.</p>
+        </div>
 
         {demoHint ? (
-          <div className={styles.hintBox}>
-            Demo login: <strong>{demoHint.email}</strong> / <strong>{demoHint.password}</strong>
+          <div className={styles.credentialCard}>
+            <span className={styles.authHighlightLabel}>Demo login</span>
+            <p className={styles.credentialValue}>{demoHint.email}</p>
+            <p className={styles.credentialValue}>{demoHint.password}</p>
           </div>
         ) : null}
 
@@ -62,7 +85,12 @@ export function AdminLoginForm({ demoHint }: AdminLoginFormProps) {
         >
           <label className={styles.label}>
             Email
-            <input className={styles.input} defaultValue={demoHint?.email} name="email" type="email" />
+            <input
+              className={styles.input}
+              defaultValue={demoHint?.email}
+              name="email"
+              type="email"
+            />
           </label>
           <label className={styles.label}>
             Password
@@ -75,13 +103,13 @@ export function AdminLoginForm({ demoHint }: AdminLoginFormProps) {
           </label>
           <div className={styles.buttonRow}>
             <button className={styles.primaryButton} disabled={isPending} type="submit">
-              {isPending ? "Signing in..." : "Enter desk"}
+              {isPending ? "Signing in..." : "Enter dashboard"}
             </button>
           </div>
-          <p className={styles.message}>{message}</p>
+          {message ? <p className={styles.message}>{message}</p> : null}
         </form>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }
 

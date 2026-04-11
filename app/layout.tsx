@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-import { Footer } from "@/components/footer";
-import { Navigation } from "@/components/navigation";
-import { Preloader } from "@/components/preloader";
+import { LayoutShell } from "@/components/layout-shell";
 import { Providers } from "@/components/providers";
 
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000"),
   title: {
     default: "UDGAM | University Sports Festival",
     template: "%s | UDGAM",
@@ -24,13 +22,10 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <body>
         <Providers>
-          <Preloader />
-          <Navigation />
-          <main className="siteMain">{children}</main>
-          <Footer />
+          <LayoutShell>{children}</LayoutShell>
         </Providers>
       </body>
     </html>
