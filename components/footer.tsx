@@ -6,16 +6,18 @@ export function Footer() {
   return (
     <footer className={styles.footer}>
       <div className={styles.footerCard}>
+        <span aria-hidden className={styles.footerSeal} />
+
         <div className={styles.footerBrand}>
           <p className={styles.sectionEyebrow}>UDGAM / CAMPUS SPORTS</p>
-          <h2 className={styles.footerBrandTitle}>Modern structure for a university event.</h2>
+          <h2 className={styles.footerBrandTitle}>Campus sport, shaped with precision.</h2>
           <p className={styles.footerText}>
             UDGAM brings fixtures, live scores, venue information, and campus moments
             into one clean public site.
           </p>
         </div>
 
-        <div>
+        <div className={styles.footerLinksPanel}>
           <p className={styles.sectionEyebrow}>Explore</p>
           <ul className={styles.footerList}>
             <li>
@@ -40,7 +42,11 @@ export function Footer() {
               Next.js, Prisma, Auth.js, Socket.IO, and Cloudflare R2.
             </p>
           </div>
-          <p className={styles.footerText}>Built for UDGAM 2026.</p>
+
+          <div className={styles.footerBottomRow}>
+            <p className={styles.footerText}>Built for UDGAM 2026.</p>
+            <p className={styles.footerMini}>SRM IST • Sports Fest Platform</p>
+          </div>
         </div>
       </div>
     </footer>
