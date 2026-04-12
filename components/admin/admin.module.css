@@ -8,10 +8,10 @@
   --admin-border-strong: rgba(88, 109, 135, 0.36);
   --admin-text: #132033;
   --admin-muted: #5f7084;
-  --admin-accent: #13263f;
-  --admin-accent-soft: #d9eef1;
-  --admin-accent-bright: #1f988c;
-  --admin-accent-warm: #ef7b5b;
+  --admin-accent: #c32012;
+  --admin-accent-soft: #f7d8d2;
+  --admin-accent-bright: #ff5b3d;
+  --admin-accent-warm: #ff8a73;
   --admin-accent-text: #f7fbff;
   --admin-shadow-soft: 0 18px 48px rgba(16, 24, 40, 0.08);
   --admin-shadow-panel: 0 26px 72px rgba(15, 23, 42, 0.12);
@@ -570,24 +570,23 @@
 }
 
 .primaryButton {
-  background: linear-gradient(180deg, #18314f, #13263f);
+  background: linear-gradient(180deg, var(--admin-accent-bright), var(--admin-accent));
   color: var(--admin-accent-text);
-  border-color: #16304e;
-  box-shadow: 0 14px 26px rgba(19, 38, 63, 0.22);
+  border-color: rgba(163, 30, 18, 0.84);
+  box-shadow: 0 14px 26px rgba(108, 31, 21, 0.22);
 }
 
 .secondaryButton,
 .mobileMenuButton,
 .sidebarLogout {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(235, 243, 249, 0.92));
-  color: var(--admin-text);
+  background: linear-gradient(180deg, var(--admin-accent-bright), var(--admin-accent));
+  color: var(--admin-accent-text);
+  border-color: rgba(163, 30, 18, 0.84);
+  box-shadow: 0 14px 24px rgba(108, 31, 21, 0.18);
 }
 
 .sidebarLogout {
   margin-top: auto;
-  background:
-    linear-gradient(180deg, rgba(244, 248, 253, 0.98), rgba(224, 236, 247, 0.92));
 }
 
 .sidebarLogout:hover,
@@ -595,7 +594,7 @@
 .secondaryButton:hover,
 .mobileMenuButton:hover {
   transform: translateY(-1px);
-  filter: brightness(0.98);
+  filter: brightness(1.04);
 }
 
 .sidebarLogout:disabled,

@@ -29,6 +29,18 @@ enum RegistrationCategory {
   EXECUTIVE
 }
 
+enum CompetitionKind {
+  SPORT
+  ESPORT
+}
+
+enum CompetitionDivision {
+  MEN
+  WOMEN
+  OPEN
+  MIXED
+}
+
 model Sport {
   id          String   @id @default(cuid())
   name        String
@@ -165,7 +177,31 @@ model CommitteeRegistration {
   imageR2Key String?
   createdAt  DateTime             @default(now())
   updatedAt  DateTime             @updatedAt
+  headEmail      String?
+  headLinkedin   String?
+  coHeadEmail    String?
+  coHeadLinkedin String?
 
   @@index([createdAt])
   @@index([category, createdAt])
+}
+
+model Competition {
+  id                   String              @id @default(cuid())
+  title                String
+  slug                 String              @unique
+  kind                 CompetitionKind     @default(SPORT)
+  sportName            String
+  division             CompetitionDivision @default(OPEN)
+  formatLabel          String?
+  registrationFee      Int
+  winnerPrize          Int?
+  runnerUpPrize        Int?
+  secondRunnerUpPrize  Int?
+  displayOrder         Int                 @default(0)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  @@index([kind, division, displayOrder])
+  @@index([sportName, division])
 }

@@ -39,8 +39,8 @@ export function Navigation() {
           ))}
         </div>
 
-        <Link className={styles.navAction} href="/contact">
-          Contact
+        <Link className={styles.navAction} href="/register/committee">
+          Register
         </Link>
       </nav>
     </div>

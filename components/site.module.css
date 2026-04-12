@@ -213,15 +213,17 @@
 }
 
 .secondaryButton {
-  background: rgba(239, 230, 216, 0.08);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
   color: var(--paper);
-  border: 1px solid rgba(28, 167, 154, 0.18);
+  border: 1px solid rgba(195, 32, 18, 0.46);
+  box-shadow: 0 18px 34px rgba(108, 31, 21, 0.2);
 }
 
 .secondaryLight {
-  background: rgba(244, 236, 224, 0.72);
-  color: var(--ink-strong);
-  border: 1px solid rgba(28, 167, 154, 0.18);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+  color: var(--paper);
+  border: 1px solid rgba(195, 32, 18, 0.46);
+  box-shadow: 0 18px 34px rgba(108, 31, 21, 0.18);
 }
 
 .primaryButton:hover,
@@ -231,7 +233,7 @@
 .secondaryButton:focus-visible,
 .secondaryLight:focus-visible {
   transform: translateY(-2px);
-  box-shadow: 0 18px 40px rgba(10, 18, 36, 0.16);
+  box-shadow: 0 22px 42px rgba(108, 31, 21, 0.24);
 }
 
 .sectionHeader {
@@ -285,6 +287,11 @@
   color: var(--paper);
 }
 
+.bannerTitleCompact {
+  font-size: clamp(2rem, 4vw, 3.8rem);
+  line-height: 0.88;
+}
+
 .bannerText {
   position: relative;
   z-index: 1;
@@ -294,12 +301,22 @@
   line-height: 1.66;
 }
 
+.bannerTextCompact {
+  max-width: 28rem;
+  font-size: 0.98rem;
+  line-height: 1.45;
+}
+
 .chips {
   position: relative;
   z-index: 1;
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
+}
+
+.chipsCompact {
+  gap: 0.5rem;
 }
 
 .chip {
@@ -312,6 +329,11 @@
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+.chipCompact {
+  padding: 0.48rem 0.72rem;
+  font-size: 0.68rem;
 }
 
 .footer {

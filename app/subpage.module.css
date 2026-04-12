@@ -5,6 +5,67 @@
   animation: riseIn 360ms ease both;
 }
 
+.catalogSection {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.sectionHeader {
+  display: grid;
+  gap: 1rem;
+  align-items: end;
+  grid-template-columns: minmax(0, 1.5fr) auto;
+  padding: 0.35rem 0 0.15rem;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.sectionCopy {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.sectionEyebrow {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.6vw, 2.1rem);
+  line-height: 0.98;
+  text-transform: uppercase;
+}
+
+.sectionText {
+  max-width: 44rem;
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.sectionChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: flex-end;
+}
+
+.sectionChip {
+  padding: 0.42rem 0.78rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgba(19, 38, 63, 0.04);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .gridTwo {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -42,9 +103,10 @@
   position: relative;
   overflow: hidden;
   display: grid;
-  gap: 0.75rem;
-  padding: 1.15rem 1.1rem 1.2rem;
-  clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+  gap: 0.9rem;
+  min-width: 0;
+  padding: 1.15rem 1.5rem 1.3rem 1.15rem;
+  clip-path: polygon(0 0, 100% 0, 95% 100%, 0 100%);
   background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%);
   color: var(--paper);
   box-shadow: var(--shadow-panel);
@@ -95,8 +157,10 @@
   margin: 0;
   font-family: var(--font-display);
   font-size: clamp(1.9rem, 4vw, 2.5rem);
-  line-height: 0.92;
+  line-height: 0.96;
   text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 
 .text,
@@ -127,6 +191,62 @@
   font-weight: 700;
 }
 
+.competitionCard {
+  align-content: start;
+}
+
+.competitionEyebrow {
+  padding-right: 0.75rem;
+}
+
+.competitionTitle {
+  font-size: clamp(1.65rem, 3vw, 2.15rem);
+  padding-right: 0.6rem;
+}
+
+.competitionFee {
+  font-size: 1.04rem;
+  color: rgba(248, 239, 230, 0.88);
+}
+
+.prizeGrid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1rem;
+}
+
+.prizeCell {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.prizeLabel {
+  color: rgba(248, 239, 230, 0.66);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.prizeValue {
+  font-size: 1.35rem;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.competitionMeta {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: rgba(248, 239, 230, 0.72);
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
 .timeline {
   display: grid;
   gap: 1rem;
@@ -139,9 +259,29 @@
 }
 
 @media (max-width: 920px) {
+  .sectionHeader {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionChips {
+    justify-content: flex-start;
+  }
+
   .gridTwo,
   .gridThree,
   .contactGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .darkCard {
+    padding-right: 1.1rem;
+    clip-path: none;
+    border-radius: 1.1rem;
+  }
+
+  .prizeGrid {
     grid-template-columns: 1fr;
   }
 }

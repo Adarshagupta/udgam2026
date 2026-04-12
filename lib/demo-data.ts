@@ -1,6 +1,7 @@
 import { hashSync } from "bcryptjs";
 
 import type {
+  CompetitionSummary,
   CommitteeRegistrationSummary,
   ContentPostSummary,
   EventSummary,
@@ -9,11 +10,12 @@ import type {
   SportSummary,
   TeamSummary,
 } from "@/lib/types";
+import { competitionSeedEntries, sportSeedEntries } from "@/lib/competition-catalog";
 import { asDataUri } from "@/lib/utils";
 
 const DEMO_ADMIN_EMAIL = "organizer@udgam.live";
 const DEMO_ADMIN_PASSWORD = "udgam-admin";
-const DEMO_STORE_VERSION = "slayer-inspired-v3";
+const DEMO_STORE_VERSION = "slayer-inspired-v4";
 
 interface DemoAdminUser {
   id: string;
@@ -25,6 +27,7 @@ interface DemoAdminUser {
 
 interface DemoStore {
   sports: SportSummary[];
+  competitions: CompetitionSummary[];
   teams: TeamSummary[];
   events: EventSummary[];
   matches: LiveMatch[];
@@ -76,10 +79,10 @@ function makePoster(label: string, accent: string, sublabel: string) {
       <path d="M0 582 L960 582" stroke="rgba(244,238,230,0.08)" stroke-width="2" opacity="0.6" />
       <path d="M0 128 L960 128" stroke="url(#sunLine)" stroke-width="4" opacity="0.75" />
       <rect x="70" y="92" width="220" height="42" rx="21" fill="#f4eee6" opacity="0.96" />
-      <text x="96" y="120" fill="#131821" font-family="Arial Black, Arial" font-size="22">UDGAM LIVE</text>
-      <text x="70" y="282" fill="#f4eee6" font-family="Arial Black, Arial" font-size="88" letter-spacing="2">${label}</text>
-      <text x="74" y="338" fill="#f4eee6" font-family="Arial" font-size="30" opacity="0.9">${sublabel}</text>
-      <text x="72" y="398" fill="#ebb04a" font-family="Arial Black, Arial" font-size="24" letter-spacing="9">SPORTS ARC</text>
+      <text x="96" y="120" fill="#131821" font-family="Yu Gothic, Hiragino Kaku Gothic ProN, Meiryo, sans-serif" font-size="22">UDGAM LIVE</text>
+      <text x="70" y="282" fill="#f4eee6" font-family="Yu Mincho, Hiragino Mincho ProN, Noto Serif JP, serif" font-size="88" letter-spacing="2">${label}</text>
+      <text x="74" y="338" fill="#f4eee6" font-family="Yu Gothic, Hiragino Kaku Gothic ProN, Meiryo, sans-serif" font-size="30" opacity="0.9">${sublabel}</text>
+      <text x="72" y="398" fill="#ebb04a" font-family="Yu Gothic, Hiragino Kaku Gothic ProN, Meiryo, sans-serif" font-size="24" letter-spacing="9">SPORTS ARC</text>
       <rect x="72" y="444" width="260" height="186" rx="28" fill="rgba(244,238,230,0.08)" stroke="rgba(215,240,238,0.18)" />
       <path d="M110 532 C146 468 238 456 312 468" fill="none" stroke="#f4eee6" stroke-width="10" stroke-linecap="round" />
       <path d="M98 578 C172 498 230 470 324 486" fill="none" stroke="#1ca79a" stroke-width="6" stroke-linecap="round" opacity="0.9" />
@@ -93,36 +96,27 @@ function makePoster(label: string, accent: string, sublabel: string) {
 
 function buildDemoStore(): DemoStore {
   return {
-    sports: [
-      {
-        id: "sport-basketball",
-        name: "Basketball",
-        slug: "basketball",
-        accent: "#1ca79a",
-        tagline: "Sharp drives, bright cuts, and full-court rhythm.",
-      },
-      {
-        id: "sport-football",
-        name: "Football",
-        slug: "football",
-        accent: "#df4f3e",
-        tagline: "Flare-fast counters and one loud final whistle.",
-      },
-      {
-        id: "sport-badminton",
-        name: "Badminton",
-        slug: "badminton",
-        accent: "#ebb04a",
-        tagline: "Quick hands, light feet, zero hesitation.",
-      },
-      {
-        id: "sport-volleyball",
-        name: "Volleyball",
-        slug: "volleyball",
-        accent: "#7c6cf2",
-        tagline: "High arcs, hard blocks, and clean last-point drama.",
-      },
-    ],
+    sports: sportSeedEntries.map((sport) => ({
+      id: `sport-${sport.name.toLowerCase().replace(/\s+/g, "-")}`,
+      name: sport.name,
+      slug: sport.name.toLowerCase().replace(/\s+/g, "-"),
+      accent: sport.accent,
+      tagline: sport.tagline,
+    })),
+    competitions: competitionSeedEntries.map((entry) => ({
+      id: `competition-${entry.slug}`,
+      title: entry.title,
+      slug: entry.slug,
+      kind: entry.kind,
+      sportName: entry.sportName,
+      division: entry.division,
+      formatLabel: entry.formatLabel ?? null,
+      registrationFee: entry.registrationFee,
+      winnerPrize: entry.winnerPrize ?? null,
+      runnerUpPrize: entry.runnerUpPrize ?? null,
+      secondRunnerUpPrize: entry.secondRunnerUpPrize ?? null,
+      displayOrder: entry.displayOrder,
+    })),
     teams: [
       {
         id: "team-falcon-house",

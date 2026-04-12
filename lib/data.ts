@@ -7,6 +7,7 @@ import { getDemoStore } from "@/lib/demo-data";
 import { env } from "@/lib/env";
 import { prisma, resetPrismaClient } from "@/lib/prisma";
 import type {
+  CompetitionSummary,
   CommitteeRegistrationSummary,
   ContentPostSummary,
   CreateCommitteeRegistrationInput,
@@ -175,6 +176,36 @@ function mapSport(sport: {
   };
 }
 
+function mapCompetition(entry: {
+  id: string;
+  title: string;
+  slug: string;
+  kind: "SPORT" | "ESPORT";
+  sportName: string;
+  division: "MEN" | "WOMEN" | "OPEN" | "MIXED";
+  formatLabel: string | null;
+  registrationFee: number;
+  winnerPrize: number | null;
+  runnerUpPrize: number | null;
+  secondRunnerUpPrize: number | null;
+  displayOrder: number;
+}): CompetitionSummary {
+  return {
+    id: entry.id,
+    title: entry.title,
+    slug: entry.slug,
+    kind: entry.kind,
+    sportName: entry.sportName,
+    division: entry.division,
+    formatLabel: entry.formatLabel,
+    registrationFee: entry.registrationFee,
+    winnerPrize: entry.winnerPrize,
+    runnerUpPrize: entry.runnerUpPrize,
+    secondRunnerUpPrize: entry.secondRunnerUpPrize,
+    displayOrder: entry.displayOrder,
+  };
+}
+
 function mapTeam(team: {
   id: string;
   name: string;
@@ -253,6 +284,12 @@ function getDemoCommitteeRegistrations() {
 
 function getDemoTeams() {
   return [...getDemoStore().teams].sort((left, right) => left.name.localeCompare(right.name));
+}
+
+function getDemoCompetitions() {
+  return [...getDemoStore().competitions].sort(
+    (left, right) => left.displayOrder - right.displayOrder,
+  );
 }
 
 function getDemoPosts(options?: {
@@ -482,6 +519,27 @@ export async function getSports(): Promise<SportSummary[]> {
       return sports.map(mapSport);
     },
     () => getDemoStore().sports,
+  );
+}
+
+export async function getCompetitionCatalog(): Promise<CompetitionSummary[]> {
+  if (shouldUseDemoData()) {
+    return getDemoCompetitions();
+  }
+
+  return withReadFallback(
+    async () => {
+      if (!prisma || !("competition" in prisma)) {
+        return getDemoCompetitions();
+      }
+
+      const competitions = await prisma!.competition.findMany({
+        orderBy: [{ displayOrder: "asc" }, { title: "asc" }],
+      });
+
+      return competitions.map(mapCompetition);
+    },
+    () => getDemoCompetitions(),
   );
 }
 

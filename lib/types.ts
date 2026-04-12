@@ -7,6 +7,8 @@ export type MatchStatus =
 
 export type ContentPostType = "BLOG" | "NEWS";
 export type RegistrationCategory = "COMMITTEE" | "EXECUTIVE";
+export type CompetitionKind = "SPORT" | "ESPORT";
+export type CompetitionDivision = "MEN" | "WOMEN" | "OPEN" | "MIXED";
 
 export interface SportSummary {
   id: string;
@@ -14,6 +16,21 @@ export interface SportSummary {
   slug: string;
   accent: string;
   tagline: string;
+}
+
+export interface CompetitionSummary {
+  id: string;
+  title: string;
+  slug: string;
+  kind: CompetitionKind;
+  sportName: string;
+  division: CompetitionDivision;
+  formatLabel: string | null;
+  registrationFee: number;
+  winnerPrize: number | null;
+  runnerUpPrize: number | null;
+  secondRunnerUpPrize: number | null;
+  displayOrder: number;
 }
 
 export interface TeamSummary {

@@ -39,7 +39,7 @@ function getPrismaClientConstructor() {
 }
 
 function hasRequiredDelegates(client: PrismaClientType | undefined) {
-  return Boolean(client && "committeeRegistration" in client);
+  return Boolean(client && "committeeRegistration" in client && "competition" in client);
 }
 
 function createPgPool() {

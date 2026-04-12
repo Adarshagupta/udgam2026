@@ -14,6 +14,7 @@ interface PageBannerProps {
   chips: string[];
   tone?: PanelTone;
   pattern?: PanelPattern;
+  compact?: boolean;
 }
 
 export function PageBanner({
@@ -23,21 +24,31 @@ export function PageBanner({
   chips,
   tone = "dark",
   pattern = "court",
+  compact = false,
 }: PageBannerProps) {
   return (
     <ParallaxScene className={panelStyles.bannerWrap} strength={12}>
       <PatternedPanel
         as="section"
-        className={panelStyles.bannerPanel}
+        className={`${panelStyles.bannerPanel} ${compact ? panelStyles.bannerPanelCompact : ""}`}
         pattern={pattern}
         tone={tone}
       >
-        <p className={panelStyles.bannerEyebrow}>{eyebrow}</p>
-        <h1 className={styles.bannerTitle}>{title}</h1>
-        <p className={styles.bannerText}>{description}</p>
-        <div className={styles.chips}>
+        <p className={`${panelStyles.bannerEyebrow} ${compact ? panelStyles.bannerEyebrowCompact : ""}`}>
+          {eyebrow}
+        </p>
+        <h1 className={`${styles.bannerTitle} ${compact ? styles.bannerTitleCompact : ""}`}>
+          {title}
+        </h1>
+        <p className={`${styles.bannerText} ${compact ? styles.bannerTextCompact : ""}`}>
+          {description}
+        </p>
+        <div className={`${styles.chips} ${compact ? styles.chipsCompact : ""}`}>
           {chips.map((chip) => (
-            <span key={chip} className={styles.chip}>
+            <span
+              key={chip}
+              className={`${styles.chip} ${compact ? styles.chipCompact : ""}`}
+            >
               {chip}
             </span>
           ))}
