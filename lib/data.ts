@@ -25,6 +25,7 @@ import type {
   TeamSummary,
   UpdateCommitteeRegistrationInput,
   UpdateMatchInput,
+  UpdateSportInput,
 } from "@/lib/types";
 import { slugify } from "@/lib/utils";
 
@@ -165,6 +166,7 @@ function mapSport(sport: {
   name: string;
   slug: string;
   accentColor: string | null;
+  imageUrl: string | null;
   tagline: string | null;
 }): SportSummary {
   return {
@@ -173,6 +175,7 @@ function mapSport(sport: {
     slug: sport.slug,
     accent: sport.accentColor ?? "#f35c38",
     tagline: sport.tagline ?? "Built for UDGAM pace.",
+    imageUrl: sport.imageUrl ?? null,
   };
 }
 
@@ -352,12 +355,40 @@ function createDemoSport(input: CreateSportInput) {
     name: input.name.trim(),
     slug,
     accent: input.accent?.trim() || "#f35c38",
+    imageUrl: input.imageUrl?.trim() || null,
     tagline: input.tagline?.trim() || "Freshly added from the admin desk.",
   };
 
   store.sports.push(sport);
   store.sports.sort((left, right) => left.name.localeCompare(right.name));
   return sport;
+}
+
+function updateDemoSport(sportId: string, input: UpdateSportInput) {
+  const store = getDemoStore();
+  const index = store.sports.findIndex((sport) => sport.id === sportId);
+  if (index === -1) {
+    throw new Error("Sport was not found.");
+  }
+
+  const slug = slugify(input.name);
+  const existing = store.sports.find((sport) => sport.slug === slug && sport.id !== sportId);
+  if (existing) {
+    throw new Error("Sport already exists.");
+  }
+
+  const updated: SportSummary = {
+    ...store.sports[index],
+    name: input.name.trim(),
+    slug,
+    accent: input.accent?.trim() || "#f35c38",
+    imageUrl: input.imageUrl?.trim() || null,
+    tagline: input.tagline?.trim() || "Freshly updated from the admin desk.",
+  };
+
+  store.sports[index] = updated;
+  store.sports.sort((left, right) => left.name.localeCompare(right.name));
+  return updated;
 }
 
 function createDemoTeam(input: CreateTeamInput) {
@@ -819,11 +850,45 @@ export async function createSport(input: CreateSportInput) {
       name: input.name.trim(),
       slug,
       accentColor: input.accent?.trim() || "#f35c38",
+      imageUrl: input.imageUrl?.trim() || null,
       tagline: input.tagline?.trim() || "Freshly added from the admin desk.",
     },
   });
 
   return mapSport(sport);
+}
+
+export async function updateSport(sportId: string, input: UpdateSportInput) {
+  if (shouldUseDemoData()) {
+    return updateDemoSport(sportId, input);
+  }
+
+  const existingSport = await prisma!.sport.findUnique({
+    where: { id: sportId },
+  });
+
+  if (!existingSport) {
+    throw new Error("Sport was not found.");
+  }
+
+  const slug = slugify(input.name);
+  const slugConflict = await prisma!.sport.findUnique({ where: { slug } });
+  if (slugConflict && slugConflict.id !== sportId) {
+    throw new Error("Sport already exists.");
+  }
+
+  const updated = await prisma!.sport.update({
+    where: { id: sportId },
+    data: {
+      name: input.name.trim(),
+      slug,
+      accentColor: input.accent?.trim() || "#f35c38",
+      imageUrl: input.imageUrl?.trim() || null,
+      tagline: input.tagline?.trim() || "Freshly updated from the admin desk.",
+    },
+  });
+
+  return mapSport(updated);
 }
 
 export async function createTeam(input: CreateTeamInput) {
@@ -1082,3 +1147,17 @@ export async function getDashboardSnapshot(): Promise<DashboardSnapshot> {
     adminHint: getAdminHint(),
   };
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -7,6 +7,7 @@ import { createSport } from "@/lib/data";
 const createSportSchema = z.object({
   name: z.string().trim().min(2),
   accent: z.string().trim().optional(),
+  imageUrl: z.string().trim().optional(),
   tagline: z.string().trim().optional(),
 });
 
@@ -38,3 +39,4 @@ export async function POST(request: Request) {
     );
   }
 }
+

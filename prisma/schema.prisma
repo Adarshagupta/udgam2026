@@ -46,6 +46,7 @@ model Sport {
   name        String
   slug        String   @unique
   accentColor String?
+  imageUrl    String?
   tagline     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -205,3 +206,4 @@ model Competition {
   @@index([kind, division, displayOrder])
   @@index([sportName, division])
 }
+

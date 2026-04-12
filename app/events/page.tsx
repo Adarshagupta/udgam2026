@@ -154,10 +154,15 @@ export default async function EventsPage({
 
       <div className={styles.gridTwo}>
         {filteredSports.map((sport) => (
-          <article className={styles.card} key={sport.id}>
-            <p className={styles.eyebrow}>Competition lane</p>
-            <h2 className={styles.title}>{sport.name}</h2>
-            <p className={styles.text}>{sport.tagline}</p>
+          <article className={[styles.card, styles.sportCard].join(" ")} key={sport.id}>
+            {sport.imageUrl ? (
+              <img alt={sport.name} className={styles.sportCardImage} src={sport.imageUrl} />
+            ) : null}
+            <div className={styles.sportCardBody}>
+              <p className={styles.eyebrow}>Competition lane</p>
+              <h2 className={styles.title}>{sport.name}</h2>
+              <p className={styles.text}>{sport.tagline}</p>
+            </div>
           </article>
         ))}
       </div>
@@ -228,3 +233,7 @@ export default async function EventsPage({
     </div>
   );
 }
+
+
+
+

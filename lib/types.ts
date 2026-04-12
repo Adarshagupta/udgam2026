@@ -15,6 +15,7 @@ export interface SportSummary {
   name: string;
   slug: string;
   accent: string;
+  imageUrl: string | null;
   tagline: string;
 }
 
@@ -157,6 +158,14 @@ export interface CreateGalleryImageInput {
 export interface CreateSportInput {
   name: string;
   accent?: string;
+  imageUrl?: string;
+  tagline?: string;
+}
+
+export interface UpdateSportInput {
+  name: string;
+  accent?: string;
+  imageUrl?: string;
   tagline?: string;
 }
 
@@ -194,3 +203,5 @@ export interface UpdateCommitteeRegistrationInput {
   imageUrl?: string;
   imageR2Key?: string;
 }
+
+

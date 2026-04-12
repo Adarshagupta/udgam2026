@@ -154,6 +154,24 @@
   background: linear-gradient(180deg, var(--accent), transparent);
 }
 
+.sportCard {
+  gap: 0.9rem;
+  padding-bottom: 1rem;
+}
+
+.sportCardImage {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 1rem;
+  border: 1px solid var(--line-strong);
+}
+
+.sportCardBody {
+  display: grid;
+  gap: 0.75rem;
+}
+
 .darkCard {
   position: relative;
   overflow: hidden;
@@ -334,7 +352,25 @@
     grid-template-columns: 1fr;
   }
 
-  .darkCard {
+  .sportCard {
+  gap: 0.9rem;
+  padding-bottom: 1rem;
+}
+
+.sportCardImage {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 1rem;
+  border: 1px solid var(--line-strong);
+}
+
+.sportCardBody {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.darkCard {
     padding-right: 1.1rem;
     clip-path: none;
     border-radius: 1.1rem;
@@ -344,3 +380,5 @@
     grid-template-columns: 1fr;
   }
 }
+
+

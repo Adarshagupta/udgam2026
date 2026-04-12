@@ -101,6 +101,7 @@ function buildDemoStore(): DemoStore {
       name: sport.name,
       slug: sport.name.toLowerCase().replace(/\s+/g, "-"),
       accent: sport.accent,
+      imageUrl: null,
       tagline: sport.tagline,
     })),
     competitions: competitionSeedEntries.map((entry) => ({
@@ -368,3 +369,4 @@ export function getDemoAdminCredentials() {
     password: DEMO_ADMIN_PASSWORD,
   };
 }
+

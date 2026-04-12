@@ -55,6 +55,7 @@ export function AdminPanel({
       name: String(formData.get("name") ?? ""),
       accent: String(formData.get("accent") ?? ""),
       tagline: String(formData.get("tagline") ?? ""),
+      imageUrl: String(formData.get("imageUrl") ?? ""),
     };
 
     const response = await fetch("/api/admin/sports", {
@@ -77,6 +78,40 @@ export function AdminPanel({
     startTransition(() => router.refresh());
   }
 
+  async function handleUpdateSport(
+    sportId: string,
+    formData: FormData,
+    sportName: string,
+  ) {
+    setBusyAction("sport-" + sportId);
+    setMessage("");
+
+    const payload = {
+      name: String(formData.get("name") ?? ""),
+      accent: String(formData.get("accent") ?? ""),
+      imageUrl: String(formData.get("imageUrl") ?? ""),
+      tagline: String(formData.get("tagline") ?? ""),
+    };
+
+    const response = await fetch("/api/admin/sports/" + sportId, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const responsePayload = (await response.json().catch(() => null)) as
+      | { error?: string }
+      | null;
+
+    setBusyAction(null);
+
+    if (!response.ok) {
+      setMessage(responsePayload?.error ?? ("Could not update " + sportName + "."));
+      return;
+    }
+
+    setMessage(payload.name + " updated.");
+    startTransition(() => router.refresh());
+  }
   async function handleCreateTeam(formData: FormData) {
     setBusyAction("team");
     setMessage("");
@@ -460,6 +495,14 @@ export function AdminPanel({
                     />
                   </label>
                 </div>
+                <label className={styles.label}>
+                  Sport image URL
+                  <input
+                    className={styles.input}
+                    name="imageUrl"
+                    placeholder="https://example.com/basketball.jpg"
+                  />
+                </label>
                 <div className={styles.buttonRow}>
                   <button
                     className={styles.primaryButton}
@@ -476,10 +519,63 @@ export function AdminPanel({
               <div className={styles.recordList}>
                 {snapshot.sports.length ? (
                   snapshot.sports.map((sport) => (
-                    <article className={styles.listItem} key={sport.id}>
-                      <p className={styles.listTitle}>{sport.name}</p>
-                      <p className={styles.listMeta}>{sport.tagline}</p>
-                    </article>
+                    <form
+                      action={(formData) => {
+                        void handleUpdateSport(sport.id, formData, sport.name);
+                      }}
+                      className={styles.listItem}
+                      key={sport.id}
+                    >
+                      {sport.imageUrl ? (
+                        <img alt={sport.name} className={styles.thumb} src={sport.imageUrl} />
+                      ) : null}
+                      <label className={styles.label}>
+                        Name
+                        <input
+                          className={styles.input}
+                          defaultValue={sport.name}
+                          name="name"
+                          required
+                        />
+                      </label>
+                      <div className={styles.fieldGrid}>
+                        <label className={styles.label}>
+                          Accent
+                          <input
+                            className={styles.input}
+                            defaultValue={sport.accent}
+                            name="accent"
+                            placeholder="#f35c38"
+                          />
+                        </label>
+                        <label className={styles.label}>
+                          Image URL
+                          <input
+                            className={styles.input}
+                            defaultValue={sport.imageUrl ?? ""}
+                            name="imageUrl"
+                            placeholder="https://example.com/basketball.jpg"
+                          />
+                        </label>
+                      </div>
+                      <label className={styles.label}>
+                        Tagline
+                        <input
+                          className={styles.input}
+                          defaultValue={sport.tagline}
+                          name="tagline"
+                        />
+                      </label>
+                      <div className={styles.buttonRow}>
+                        <button
+                          className={styles.secondaryButton}
+                          disabled={busyAction !== null}
+                          type="submit"
+                        >
+                          {busyAction === ("sport-" + sport.id) ? "Saving..." : "Save changes"}
+                        </button>
+                      </div>
+                    </form>
                   ))
                 ) : (
                   <p className={styles.emptyState}>No sports created yet.</p>
@@ -1129,3 +1225,9 @@ export function AdminPanel({
     </div>
   );
 }
+
+
+
+
+
+
