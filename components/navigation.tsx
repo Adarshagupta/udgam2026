@@ -10,10 +10,7 @@ import styles from "@/components/site.module.css";
 const links = [
   { href: "/", label: "Home" },
   { href: "/events", label: "Events" },
-  { href: "/live", label: "Live" },
-  { href: "/updates", label: "Updates" },
-  { href: "/gallery", label: "Gallery" },
-  { href: "/schedule", label: "Schedule" },
+  { href: "/register", label: "Committees" },
   { href: "/about", label: "About" },
 ];
 
