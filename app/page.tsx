@@ -55,9 +55,6 @@ export default async function HomePage() {
   const featureMatch = featuredMatches[0];
   const headlineEvent = events[0];
   const headlineGallery = featuredImages[0];
-  const sportCount = sports.length;
-  const eventCount = events.length;
-  const featuredMatchCount = featuredMatches.length;
 
   return (
     <div className={`${styles.page} ${landingDisplayFont.variable}`}>
@@ -158,36 +155,6 @@ export default async function HomePage() {
           </article>
         </div>
       </ParallaxScene>
-
-      <section className={styles.pulseStrip} aria-label="UDGAM quick info">
-        <article className={styles.pulseCard}>
-          <span className={styles.pulseLabel}>Dates</span>
-          <h2 className={styles.pulseValue}>22-25 April 2026</h2>
-          <p className={styles.pulseText}>Three days of league play, knockouts, and finals.</p>
-        </article>
-
-        <article className={styles.pulseCard}>
-          <span className={styles.pulseLabel}>Scale</span>
-          <h2 className={styles.pulseValue}>
-            {sportCount > 0 ? `${sportCount} sports` : "Multi-sport campus festival"}
-          </h2>
-          <p className={styles.pulseText}>
-            {eventCount > 0
-              ? `${eventCount} programmed events with live updates throughout the day.`
-              : "Events, showdowns, and crowd-ready matchday blocks."}
-          </p>
-        </article>
-
-        <article className={styles.pulseCard}>
-          <span className={styles.pulseLabel}>Action</span>
-          <h2 className={styles.pulseValue}>
-            {featuredMatchCount > 0 ? `${featuredMatchCount} featured live` : "Live desk active"}
-          </h2>
-          <p className={styles.pulseText}>
-            Registrations, scores, and announcements are now live for UDGAM 2026.
-          </p>
-        </article>
-      </section>
 
       <section className={styles.liveSection}>
         <div className={styles.liveSectionTop}>
