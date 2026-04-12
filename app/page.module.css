@@ -1,4 +1,18 @@
+@font-face {
+  font-family: "Samurai Blast";
+  src:
+    url("/fonts/SamuraiBlast.woff") format("woff"),
+    url("/fonts/SamuraiBlast.ttf") format("truetype"),
+    url("/fonts/SamuraiBlast.otf") format("opentype");
+  font-display: swap;
+}
+
 .page {
+  --landing-display:
+    "Samurai Blast",
+    "SamuraiBlast",
+    "Samurai Blast Regular",
+    var(--font-display);
   display: grid;
   gap: clamp(4rem, 6vw, 6rem);
   padding: 0.35rem clamp(0.35rem, 1.2vw, 0.9rem) 4rem;
@@ -236,10 +250,10 @@
   display: grid;
   gap: 0.12rem;
   margin: 0.35rem 0 0;
-  font-family: var(--font-display);
+  font-family: var(--landing-display);
   font-size: clamp(2.8rem, 5.8vw, 4.9rem);
-  line-height: 0.82;
-  letter-spacing: 0.035em;
+  line-height: 0.88;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -349,9 +363,10 @@
   z-index: 1;
   margin: 0;
   max-width: 24rem;
-  font-family: var(--font-display);
+  font-family: var(--landing-display);
   font-size: clamp(1.3rem, 2vw, 1.85rem);
-  line-height: 0.94;
+  line-height: 1;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
@@ -400,6 +415,64 @@
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.pulseStrip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  padding-inline: clamp(0.95rem, 2vw, 1.5rem);
+}
+
+.pulseCard {
+  position: relative;
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem 1.1rem 1.05rem 1.2rem;
+  background:
+    linear-gradient(180deg, rgba(255, 251, 246, 0.92), rgba(255, 251, 246, 0.72)),
+    linear-gradient(145deg, rgba(18, 214, 203, 0.08), rgba(255, 91, 61, 0.08));
+  border: 1px solid rgba(20, 27, 38, 0.08);
+  box-shadow: var(--shadow-soft);
+  clip-path: polygon(0 0, 100% 0, 96% 100%, 0 100%);
+}
+
+.pulseCard::before {
+  content: "";
+  position: absolute;
+  inset: 0.7rem auto 0.7rem 0;
+  width: 0.22rem;
+  background: linear-gradient(180deg, var(--accent), var(--lime));
+}
+
+.pulseLabel,
+.pulseValue,
+.pulseText {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+}
+
+.pulseLabel {
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pulseValue {
+  color: var(--ink-strong);
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2vw, 1.65rem);
+  line-height: 0.98;
+  text-transform: uppercase;
+}
+
+.pulseText {
+  color: var(--ink);
+  line-height: 1.55;
+  font-size: 0.92rem;
 }
 
 .liveSection,
@@ -843,6 +916,10 @@
 }
 
 @media (max-width: 1200px) {
+  .pulseStrip {
+    grid-template-columns: 1fr;
+  }
+
   .liveSectionTop,
   .liveSplit,
   .finalSection {

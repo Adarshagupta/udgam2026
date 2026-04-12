@@ -13,6 +13,13 @@ import {
   getScheduleEntries,
   getSports,
 } from "@/lib/data";
+import type {
+  EventSummary,
+  GalleryItem,
+  LiveMatch,
+  ScheduleEntry,
+  SportSummary,
+} from "@/lib/types";
 import { formatDateTime } from "@/lib/utils";
 
 import styles from "@/app/page.module.css";
@@ -22,7 +29,13 @@ export const dynamic = "force-dynamic";
 const tilePatterns = ["grid", "rings", "ticks", "diagonal"] as const;
 
 export default async function HomePage() {
-  const [sports, events, featuredMatches, featuredImages, schedule] = await Promise.all([
+  const [sports, events, featuredMatches, featuredImages, schedule]: [
+    SportSummary[],
+    EventSummary[],
+    LiveMatch[],
+    GalleryItem[],
+    ScheduleEntry[],
+  ] = await Promise.all([
     getSports(),
     getEvents(),
     getMatches({ featuredOnly: true }),
@@ -33,6 +46,9 @@ export default async function HomePage() {
   const featureMatch = featuredMatches[0];
   const headlineEvent = events[0];
   const headlineGallery = featuredImages[0];
+  const sportCount = sports.length;
+  const eventCount = events.length;
+  const featuredMatchCount = featuredMatches.length;
 
   return (
     <div className={styles.page}>
@@ -61,26 +77,27 @@ export default async function HomePage() {
         <section className={styles.heroShell}>
           <div className={styles.heroCopy}>
             <div>
-              <span className={styles.heroBadge}>UDGAM / 10-12 April</span>
+              <span className={styles.heroBadge}>UDGAM 2026 / 22-25 April</span>
               <div className={styles.heroRallyLine}>
-                <span>Fixtures live</span>
-                <span>Finals week</span>
+                <span>Registrations open</span>
+                <span>Campus finals week</span>
               </div>
               <h1 className={styles.heroTitle}>
                 <span>UDGAM</span>
-                <span>SPORTS ARC</span>
+                <span>SPORTS FEST</span>
               </h1>
               <p className={styles.heroText}>
-                Fast fixtures and bright finals across courts, turf, and halls.
+                The university sports festival with live scores, packed venues, and
+                nonstop campus energy.
               </p>
             </div>
 
             <div className={styles.heroActions}>
-              <Link className={siteStyles.primaryButton} href="/events">
-                Fixtures
+              <Link className={siteStyles.primaryButton} href="/register/committee">
+                Register now
               </Link>
-              <Link className={siteStyles.secondaryButton} href="/live">
-                Live
+              <Link className={siteStyles.secondaryButton} href="/schedule">
+                View schedule
               </Link>
             </div>
           </div>
@@ -88,7 +105,7 @@ export default async function HomePage() {
 
         <div className={styles.heroHighlights}>
           <article className={`${styles.heroHighlight} ${styles.heroHighlightAccent}`}>
-            <p className={styles.heroHighlightEyebrow}>Featured clash</p>
+            <p className={styles.heroHighlightEyebrow}>Headline fixture</p>
             <h2 className={styles.heroHighlightTitle}>
               {featureMatch
                 ? `${featureMatch.homeTeam} vs ${featureMatch.awayTeam}`
@@ -112,7 +129,7 @@ export default async function HomePage() {
           </article>
 
           <article className={`${styles.heroHighlight} ${styles.heroHighlightCool}`}>
-            <p className={styles.heroHighlightEyebrow}>Opening set</p>
+            <p className={styles.heroHighlightEyebrow}>Opening ceremony</p>
             <h2 className={styles.heroHighlightTitle}>
               {headlineEvent ? headlineEvent.title : "Opening Rally"}
             </h2>
@@ -133,10 +150,44 @@ export default async function HomePage() {
         </div>
       </ParallaxScene>
 
+      <section className={styles.pulseStrip} aria-label="UDGAM quick info">
+        <article className={styles.pulseCard}>
+          <span className={styles.pulseLabel}>Dates</span>
+          <h2 className={styles.pulseValue}>22-25 April 2026</h2>
+          <p className={styles.pulseText}>Three days of league play, knockouts, and finals.</p>
+        </article>
+
+        <article className={styles.pulseCard}>
+          <span className={styles.pulseLabel}>Scale</span>
+          <h2 className={styles.pulseValue}>
+            {sportCount > 0 ? `${sportCount} sports` : "Multi-sport campus festival"}
+          </h2>
+          <p className={styles.pulseText}>
+            {eventCount > 0
+              ? `${eventCount} programmed events with live updates throughout the day.`
+              : "Events, showdowns, and crowd-ready matchday blocks."}
+          </p>
+        </article>
+
+        <article className={styles.pulseCard}>
+          <span className={styles.pulseLabel}>Action</span>
+          <h2 className={styles.pulseValue}>
+            {featuredMatchCount > 0 ? `${featuredMatchCount} featured live` : "Live desk active"}
+          </h2>
+          <p className={styles.pulseText}>
+            Registrations, scores, and announcements are now live for UDGAM 2026.
+          </p>
+        </article>
+      </section>
+
       <section className={styles.liveSection}>
         <div className={styles.liveSectionTop}>
           <div className={styles.liveHeadingShell}>
-            <SectionHeading eyebrow="Live" text="Scores, photos, next calls." title="Live desk." />
+            <SectionHeading
+              eyebrow="Live control"
+              text="Scores, updates, and next calls from every active venue."
+              title="Matchday command center."
+            />
           </div>
 
           <div className={styles.routeGrid}>
@@ -172,9 +223,9 @@ export default async function HomePage() {
 
       <section className={styles.sportsSection}>
         <SectionHeading
-          eyebrow="Sport lanes"
-          text="Each lane carries its own pace, pressure, and standout moments."
-          title="Competitive forms."
+          eyebrow="Sports"
+          text="From quick-court battles to long-form finals, each format has its own rhythm."
+          title="Choose your battleground."
         />
 
         <div className={styles.sportGrid}>
@@ -199,9 +250,9 @@ export default async function HomePage() {
               Full schedule
             </Link>
           }
-          eyebrow="Schedule strip"
-          text="The next blocks on deck."
-          title="Where the festival moves next."
+          eyebrow="Schedule"
+          text="Track what starts next and where to be before kickoff."
+          title="Plan your UDGAM run."
         />
 
         <div className={styles.scheduleFlow}>
@@ -225,20 +276,20 @@ export default async function HomePage() {
         <div className={`${styles.finalGlow} ${styles.layerSlow}`} />
 
         <div className={styles.finalCopy}>
-          <span className={styles.finalBadge}>Organizer ready</span>
-          <h2 className={styles.finalTitle}>Built for a modern university sports festival.</h2>
+          <span className={styles.finalBadge}>UDGAM 2026 live</span>
+          <h2 className={styles.finalTitle}>Everything set for game day.</h2>
           <p className={styles.finalText}>
-            The hero stays open for the future 3D athlete while the public surface is
-            already tuned for fixtures, scores, and media drops.
+            Register your team, follow fixtures in real time, and stay locked in for
+            announcements, media drops, and final results.
           </p>
         </div>
 
         <div className={styles.finalActions}>
-          <Link className={siteStyles.primaryButton} href="/admin">
-            Organizer desk
+          <Link className={siteStyles.primaryButton} href="/register/committee">
+            Register now
           </Link>
-          <Link className={siteStyles.secondaryLight} href="/gallery">
-            Gallery
+          <Link className={siteStyles.secondaryLight} href="/updates">
+            Latest updates
           </Link>
         </div>
       </section>
