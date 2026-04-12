@@ -2,42 +2,37 @@ export const adminNavItems = [
   {
     id: 'overview',
     label: 'Overview',
-    description: 'Metrics and shortcuts.',
+    description: 'Metrics, recent activity, and shortcuts.',
   },
   {
     id: 'sports',
     label: 'Sports',
-    description: 'Categories and tags.',
+    description: 'Manage competition categories and sport metadata.',
   },
   {
     id: 'teams',
     label: 'Teams',
-    description: 'Roster and sport links.',
+    description: 'Build the roster and assign teams to sports.',
   },
   {
     id: 'updates',
     label: 'Blog & News',
-    description: 'Posts and notices.',
+    description: 'Publish public updates, notices, and stories.',
   },
   {
     id: 'fixtures',
     label: 'Fixtures',
-    description: 'Match schedule.',
+    description: 'Create and review scheduled matches.',
   },
   {
     id: 'scores',
     label: 'Scores',
-    description: 'Live scoring.',
+    description: 'Update active match scores in real time.',
   },
   {
     id: 'gallery',
     label: 'Gallery',
-    description: 'Media uploads.',
-  },
-  {
-    id: 'registrations',
-    label: 'Registrations',
-    description: 'Team entries.',
+    description: 'Upload and review event media.',
   },
 ] as const;
 

@@ -6,7 +6,6 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 import type { DashboardSnapshot, LiveMatch } from "@/lib/types";
-import { galleryFileInputAccept, galleryImageFormatLabel } from "@/lib/gallery-upload";
 import { formatDateTime } from "@/lib/utils";
 import type { AdminView } from "@/components/admin/config";
 
@@ -27,14 +26,6 @@ const navItems = [
   { id: "fixtures", label: "Fixtures", meta: "Schedule" },
   { id: "scores", label: "Scores", meta: "Live" },
   { id: "gallery", label: "Gallery", meta: "Media" },
-  { id: "registrations", label: "Registrations", meta: "Committee" },
-] as const;
-
-const requiredR2EnvVars = [
-  "R2_ACCOUNT_ID",
-  "R2_BUCKET",
-  "R2_ACCESS_KEY_ID",
-  "R2_SECRET_ACCESS_KEY",
 ] as const;
 
 export function AdminPanel({
@@ -55,7 +46,6 @@ export function AdminPanel({
       name: String(formData.get("name") ?? ""),
       accent: String(formData.get("accent") ?? ""),
       tagline: String(formData.get("tagline") ?? ""),
-      imageUrl: String(formData.get("imageUrl") ?? ""),
     };
 
     const response = await fetch("/api/admin/sports", {
@@ -78,40 +68,6 @@ export function AdminPanel({
     startTransition(() => router.refresh());
   }
 
-  async function handleUpdateSport(
-    sportId: string,
-    formData: FormData,
-    sportName: string,
-  ) {
-    setBusyAction("sport-" + sportId);
-    setMessage("");
-
-    const payload = {
-      name: String(formData.get("name") ?? "").trim(),
-      accent: String(formData.get("accent") ?? "").trim(),
-      imageUrl: String(formData.get("imageUrl") ?? "").trim(),
-      tagline: String(formData.get("tagline") ?? "").trim(),
-    };
-
-    const response = await fetch("/api/admin/sports/" + sportId, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const responsePayload = (await response.json().catch(() => null)) as
-      | { error?: string }
-      | null;
-
-    setBusyAction(null);
-
-    if (!response.ok) {
-      setMessage(responsePayload?.error ?? ("Could not update " + sportName + "."));
-      return;
-    }
-
-    setMessage(payload.name + " updated.");
-    startTransition(() => router.refresh());
-  }
   async function handleCreateTeam(formData: FormData) {
     setBusyAction("team");
     setMessage("");
@@ -268,42 +224,10 @@ export function AdminPanel({
     startTransition(() => router.refresh());
   }
 
-  async function handleUpdateRegistration(
-    registrationId: string,
-    formData: FormData,
-    registrationTitle: string,
-  ) {
-    setBusyAction(`registration-${registrationId}`);
-    setMessage("");
-
-    const response = await fetch(`/api/admin/registrations/${registrationId}`, {
-      method: "PATCH",
-      body: formData,
-    });
-    const responsePayload = (await response.json().catch(() => null)) as
-      | { error?: string }
-      | null;
-
-    setBusyAction(null);
-
-    if (!response.ok) {
-      setMessage(responsePayload?.error ?? `Could not update ${registrationTitle}.`);
-      return;
-    }
-
-    setMessage(`${registrationTitle} updated.`);
-    startTransition(() => router.refresh());
-  }
-
   const canCreateMatch = snapshot.sports.length > 0 && snapshot.teams.length > 1;
   const showAllSections = !focusedSection;
   const showSection = (sectionId: AdminView) => showAllSections || focusedSection === sectionId;
   const displayName = userName ?? "Organizer";
-  const liveMatchesCount = snapshot.matches.filter((match) => match.status === "LIVE").length;
-  const featuredMatchesCount = snapshot.matches.filter((match) => match.featured).length;
-  const featuredGalleryCount = snapshot.gallery.filter((image) => image.featured).length;
-  const publishedPostCount = snapshot.posts.filter((post) => post.published).length;
-  const latestRegistration = snapshot.committeeRegistrations[0] ?? null;
   const panelShellClass = hideSidebar ? styles.dashboardEmbedded : styles.dashboard;
   const panelWorkspaceClass = hideSidebar ? styles.panelWorkspaceSolo : styles.panelWorkspace;
 
@@ -372,46 +296,13 @@ export function AdminPanel({
       <div className={panelWorkspaceClass}>
         {showSection("overview") ? (
         <section className={styles.hero} id="overview">
-          <div className={styles.heroLayout}>
-            <div className={styles.heroCopy}>
-              <p className={styles.sectionEyebrow}>Dashboard overview</p>
-              <h2 className={styles.heroTitle}>Operations overview</h2>
-              <p className={styles.heroText}>Sports, scores, media, registrations.</p>
-            </div>
-
-            <div className={styles.heroRail}>
-              <article className={styles.heroSignalCard}>
-                <span className={styles.heroSignalLabel}>Live scoreboard</span>
-                <strong className={styles.heroSignalValue}>{liveMatchesCount}</strong>
-                <p className={styles.heroSignalMeta}>
-                  {featuredMatchesCount
-                    ? `${featuredMatchesCount} featured`
-                    : "No featured cards"}
-                </p>
-              </article>
-
-              <article className={styles.heroSignalCard}>
-                <span className={styles.heroSignalLabel}>Content pulse</span>
-                <strong className={styles.heroSignalValue}>
-                  {publishedPostCount + featuredGalleryCount}
-                </strong>
-                <p className={styles.heroSignalMeta}>
-                  {publishedPostCount} posts · {featuredGalleryCount} frames
-                </p>
-              </article>
-
-              <article className={styles.heroSignalCard}>
-                <span className={styles.heroSignalLabel}>Registration lane</span>
-                <strong className={styles.heroSignalValue}>
-                  {snapshot.committeeRegistrations.length}
-                </strong>
-                <p className={styles.heroSignalMeta}>
-                  {latestRegistration
-                    ? latestRegistration.title
-                    : "No submissions yet"}
-                </p>
-              </article>
-            </div>
+          <div className={styles.heroCopy}>
+            <p className={styles.sectionEyebrow}>Dashboard overview</p>
+            <h2 className={styles.heroTitle}>Festival operations at a glance</h2>
+            <p className={styles.heroText}>
+              Manage sports, teams, content, fixtures, scores, and media from a layout
+              that stays separate from the public-facing site.
+            </p>
           </div>
 
           {message ? <p className={styles.message}>{message}</p> : null}
@@ -437,10 +328,6 @@ export function AdminPanel({
               <span className={styles.statLabel}>Gallery</span>
               <strong className={styles.statValue}>{snapshot.gallery.length}</strong>
             </article>
-            <article className={styles.statCard}>
-              <span className={styles.statLabel}>Committee Reg.</span>
-              <strong className={styles.statValue}>{snapshot.committeeRegistrations.length}</strong>
-            </article>
           </div>
 
           <div className={styles.alertStack}>
@@ -465,7 +352,10 @@ export function AdminPanel({
           <div className={styles.sectionHeader}>
             <div>
               <p className={styles.sectionEyebrow}>Sports</p>
-              <h3 className={styles.sectionTitle}>Competition categories</h3>
+              <h3 className={styles.sectionTitle}>Manage competition categories</h3>
+              <p className={styles.sectionText}>
+                Create sports that teams, fixtures, and stories can be attached to.
+              </p>
             </div>
           </div>
 
@@ -495,14 +385,6 @@ export function AdminPanel({
                     />
                   </label>
                 </div>
-                <label className={styles.label}>
-                  Sport image URL
-                  <input
-                    className={styles.input}
-                    name="imageUrl"
-                    placeholder="https://example.com/basketball.jpg"
-                  />
-                </label>
                 <div className={styles.buttonRow}>
                   <button
                     className={styles.primaryButton}
@@ -519,63 +401,10 @@ export function AdminPanel({
               <div className={styles.recordList}>
                 {snapshot.sports.length ? (
                   snapshot.sports.map((sport) => (
-                    <form
-                      action={(formData) => {
-                        void handleUpdateSport(sport.id, formData, sport.name);
-                      }}
-                      className={styles.listItem}
-                      key={sport.id}
-                    >
-                      {sport.imageUrl ? (
-                        <img alt={sport.name} className={styles.thumb} src={sport.imageUrl} />
-                      ) : null}
-                      <label className={styles.label}>
-                        Name
-                        <input
-                          className={styles.input}
-                          defaultValue={sport.name}
-                          name="name"
-                          required
-                        />
-                      </label>
-                      <div className={styles.fieldGrid}>
-                        <label className={styles.label}>
-                          Accent
-                          <input
-                            className={styles.input}
-                            defaultValue={sport.accent}
-                            name="accent"
-                            placeholder="#f35c38"
-                          />
-                        </label>
-                        <label className={styles.label}>
-                          Image URL
-                          <input
-                            className={styles.input}
-                            defaultValue={sport.imageUrl ?? ""}
-                            name="imageUrl"
-                            placeholder="https://example.com/basketball.jpg"
-                          />
-                        </label>
-                      </div>
-                      <label className={styles.label}>
-                        Tagline
-                        <input
-                          className={styles.input}
-                          defaultValue={sport.tagline}
-                          name="tagline"
-                        />
-                      </label>
-                      <div className={styles.buttonRow}>
-                        <button
-                          className={styles.secondaryButton}
-                          disabled={busyAction !== null}
-                          type="submit"
-                        >
-                          {busyAction === ("sport-" + sport.id) ? "Saving..." : "Save changes"}
-                        </button>
-                      </div>
-                    </form>
+                    <article className={styles.listItem} key={sport.id}>
+                      <p className={styles.listTitle}>{sport.name}</p>
+                      <p className={styles.listMeta}>{sport.tagline}</p>
+                    </article>
                   ))
                 ) : (
                   <p className={styles.emptyState}>No sports created yet.</p>
@@ -592,6 +421,9 @@ export function AdminPanel({
             <div>
               <p className={styles.sectionEyebrow}>Teams</p>
               <h3 className={styles.sectionTitle}>Build the roster</h3>
+              <p className={styles.sectionText}>
+                Add teams and assign them to sports before publishing fixtures.
+              </p>
             </div>
           </div>
 
@@ -681,6 +513,9 @@ export function AdminPanel({
             <div>
               <p className={styles.sectionEyebrow}>Blog & News</p>
               <h3 className={styles.sectionTitle}>Publish updates</h3>
+              <p className={styles.sectionText}>
+                Draft match-day notices, feature stories, and official announcements.
+              </p>
             </div>
           </div>
 
@@ -793,7 +628,10 @@ export function AdminPanel({
           <div className={styles.sectionHeader}>
             <div>
               <p className={styles.sectionEyebrow}>Fixtures</p>
-              <h3 className={styles.sectionTitle}>Publish match</h3>
+              <h3 className={styles.sectionTitle}>Publish a new match</h3>
+              <p className={styles.sectionText}>
+                Choose a sport, assign teams, then send the fixture to the live board.
+              </p>
             </div>
           </div>
 
@@ -934,6 +772,9 @@ export function AdminPanel({
             <div>
               <p className={styles.sectionEyebrow}>Live scores</p>
               <h3 className={styles.sectionTitle}>Update active matches</h3>
+              <p className={styles.sectionText}>
+                Push score changes directly from the dashboard workspace.
+              </p>
             </div>
           </div>
 
@@ -1021,6 +862,9 @@ export function AdminPanel({
             <div>
               <p className={styles.sectionEyebrow}>Gallery</p>
               <h3 className={styles.sectionTitle}>Upload media</h3>
+              <p className={styles.sectionText}>
+                Add fresh frames without leaving the dashboard.
+              </p>
             </div>
           </div>
 
@@ -1047,41 +891,13 @@ export function AdminPanel({
                 <div className={styles.fieldGrid}>
                   <label className={styles.label}>
                     Image file
-                    <input
-                      className={styles.input}
-                      accept={galleryFileInputAccept}
-                      name="file"
-                      required
-                      type="file"
-                    />
+                    <input className={styles.input} accept="image/*" name="file" required type="file" />
                   </label>
                   <label className={styles.checkboxRow}>
                     <input defaultChecked name="featured" type="checkbox" />
                     Feature on homepage
                   </label>
                 </div>
-
-                <p className={styles.supportText}>
-                  {galleryImageFormatLabel} up to {snapshot.r2MaxUploadSizeMb} MB.
-                </p>
-
-                <p className={styles.supportText}>
-                  Served through the app unless <code>R2_PUBLIC_URL</code> is set.
-                </p>
-
-                {!snapshot.r2Configured ? (
-                  <div className={styles.warningBox}>
-                    Add{" "}
-                    {requiredR2EnvVars.map((envVar, index) => (
-                      <span key={envVar}>
-                        {index > 0 ? ", " : null}
-                        <code>{envVar}</code>
-                      </span>
-                    ))}{" "}
-                    to <code>.env</code> or your deployment secrets. Set{" "}
-                    <code>R2_PUBLIC_URL</code> only if you want direct public asset URLs.
-                  </div>
-                ) : null}
 
                 <div className={styles.buttonRow}>
                   <button
@@ -1116,177 +932,7 @@ export function AdminPanel({
           </div>
         </section>
         ) : null}
-
-        {showSection("registrations") ? (
-        <section className={styles.section} id="registrations">
-          <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Registrations</p>
-              <h3 className={styles.sectionTitle}>Committee & executive</h3>
-            </div>
-          </div>
-
-          <div className={styles.recordList}>
-            {snapshot.committeeRegistrations.length ? (
-              snapshot.committeeRegistrations.map((registration) => (
-                <form
-                  key={registration.id}
-                  action={(formData) => {
-                    void handleUpdateRegistration(registration.id, formData, registration.title);
-                  }}
-                  className={styles.matchCard}
-                >
-                  <div className={styles.matchHeader}>
-                    <div>
-                      <p className={styles.matchTitle}>{registration.title}</p>
-                      <p className={styles.listMeta}>{formatDateTime(registration.createdAt)}</p>
-                    </div>
-                    <span className={styles.matchStatus}>
-                      {registration.category === "COMMITTEE" ? "Committee" : "Executive"}
-                    </span>
-                  </div>
-
-                  <div className={styles.fieldGrid}>
-                    <img alt={registration.headName} className={styles.thumb} src={registration.imageUrl} />
-                    <img
-                      alt={registration.coHeadName}
-                      className={styles.thumb}
-                      src={registration.coHeadImageUrl ?? registration.imageUrl}
-                    />
-                  </div>
-
-                  <div className={styles.fieldGrid}>
-                    <label className={styles.label}>
-                      Type
-                      <select
-                        className={styles.select}
-                        defaultValue={registration.category}
-                        name="category"
-                      >
-                        <option value="COMMITTEE">Committee</option>
-                        <option value="EXECUTIVE">Executive</option>
-                      </select>
-                    </label>
-                    <label className={styles.label}>
-                      Committee / Executive Name
-                      <input
-                        className={styles.input}
-                        defaultValue={registration.title}
-                        name="title"
-                        required
-                      />
-                    </label>
-                  </div>
-
-                  <div className={styles.fieldGrid}>
-                    <label className={styles.label}>
-                      Head Name
-                      <input
-                        className={styles.input}
-                        defaultValue={registration.headName}
-                        name="headName"
-                        required
-                      />
-                    </label>
-                    <label className={styles.label}>
-                      Co-head Name
-                      <input
-                        className={styles.input}
-                        defaultValue={registration.coHeadName}
-                        name="coHeadName"
-                        required
-                      />
-                    </label>
-                  </div>
-
-                  <div className={styles.fieldGrid}>
-                    <label className={styles.label}>
-                      Head Email
-                      <input
-                        className={styles.input}
-                        defaultValue={registration.headEmail ?? ""}
-                        name="headEmail"
-                        type="email"
-                      />
-                    </label>
-                    <label className={styles.label}>
-                      Head LinkedIn
-                      <input
-                        className={styles.input}
-                        defaultValue={registration.headLinkedin ?? ""}
-                        name="headLinkedin"
-                        type="url"
-                      />
-                    </label>
-                  </div>
-
-                  <div className={styles.fieldGrid}>
-                    <label className={styles.label}>
-                      Co-head Email
-                      <input
-                        className={styles.input}
-                        defaultValue={registration.coHeadEmail ?? ""}
-                        name="coHeadEmail"
-                        type="email"
-                      />
-                    </label>
-                    <label className={styles.label}>
-                      Co-head LinkedIn
-                      <input
-                        className={styles.input}
-                        defaultValue={registration.coHeadLinkedin ?? ""}
-                        name="coHeadLinkedin"
-                        type="url"
-                      />
-                    </label>
-                  </div>
-
-                  <label className={styles.label}>
-                    Replace Head Image
-                    <input
-                      accept={galleryFileInputAccept}
-                      className={styles.input}
-                      name="headImage"
-                      type="file"
-                    />
-                  </label>
-
-                  <label className={styles.label}>
-                    Replace Co-head Image
-                    <input
-                      accept={galleryFileInputAccept}
-                      className={styles.input}
-                      name="coHeadImage"
-                      type="file"
-                    />
-                  </label>
-
-                  <div className={styles.buttonRow}>
-                    <button
-                      className={styles.secondaryButton}
-                      disabled={busyAction !== null}
-                      type="submit"
-                    >
-                      {busyAction === `registration-${registration.id}` ? "Saving..." : "Save registration"}
-                    </button>
-                  </div>
-                </form>
-              ))
-            ) : (
-              <p className={styles.emptyState}>
-                Committee and executive registrations will appear here after submission.
-              </p>
-            )}
-          </div>
-        </section>
-        ) : null}
       </div>
     </div>
   );
 }
-
-
-
-
-
-

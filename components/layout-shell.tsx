@@ -15,35 +15,21 @@ interface LayoutShellProps {
 export function LayoutShell({ children }: LayoutShellProps) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith("/admin") ?? false;
-  const isRegistrationRoute = pathname?.startsWith("/register") ?? false;
-  const hideSiteChrome = isAdminRoute || isRegistrationRoute;
 
   useEffect(() => {
     document.body.classList.toggle("adminMode", isAdminRoute);
-    document.body.classList.toggle("registrationMode", isRegistrationRoute);
 
     return () => {
       document.body.classList.remove("adminMode");
-      document.body.classList.remove("registrationMode");
     };
-  }, [isAdminRoute, isRegistrationRoute]);
+  }, [isAdminRoute]);
 
   return (
     <>
-      {!hideSiteChrome ? <Preloader /> : null}
-      {!hideSiteChrome ? <Navigation /> : null}
-      <main
-        className={
-          isAdminRoute
-            ? "siteMain siteMainAdmin"
-            : isRegistrationRoute
-              ? "siteMain siteMainRegister"
-              : "siteMain"
-        }
-      >
-        {children}
-      </main>
-      {!hideSiteChrome ? <Footer /> : null}
+      {!isAdminRoute ? <Preloader /> : null}
+      {!isAdminRoute ? <Navigation /> : null}
+      <main className={isAdminRoute ? "siteMain siteMainAdmin" : "siteMain"}>{children}</main>
+      {!isAdminRoute ? <Footer /> : null}
     </>
   );
 }

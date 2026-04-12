@@ -22,18 +22,8 @@
   --violet: #7a63ff;
   --shadow-soft: 0 24px 58px rgba(18, 24, 34, 0.12);
   --shadow-panel: 0 34px 90px rgba(7, 11, 16, 0.42);
-  --font-display:
-    var(--font-display-loaded),
-    "Hiragino Mincho ProN",
-    "Yu Mincho",
-    "MS PMincho",
-    serif;
-  --font-body:
-    var(--font-body-loaded),
-    "Hiragino Kaku Gothic ProN",
-    "Yu Gothic",
-    "Meiryo",
-    sans-serif;
+  --font-display: "Franklin Gothic Condensed", "Arial Narrow", "Arial Black", sans-serif;
+  --font-body: "Trebuchet MS", "Gill Sans", "Segoe UI", sans-serif;
 }
 
 * {
@@ -54,8 +44,6 @@ body {
     linear-gradient(180deg, #fbf8f4 0%, #f6f2ec 38%, var(--canvas) 100%);
   color: var(--ink);
   font-family: var(--font-body);
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
 }
 
 body::before {
@@ -90,14 +78,8 @@ body.adminMode {
   background: #edf2f7;
 }
 
-body.registrationMode {
-  background: #f7f7f5;
-}
-
 body.adminMode::before,
-body.adminMode::after,
-body.registrationMode::before,
-body.registrationMode::after {
+body.adminMode::after {
   display: none;
 }
 
@@ -132,13 +114,6 @@ img {
 }
 
 .siteMainAdmin {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-}
-
-.siteMainRegister {
   width: 100%;
   margin: 0;
   padding: 0;
@@ -183,10 +158,6 @@ img {
   }
 
   .siteMainAdmin {
-    width: 100%;
-  }
-
-  .siteMainRegister {
     width: 100%;
   }
 }

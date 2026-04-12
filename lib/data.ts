@@ -5,7 +5,7 @@ import { MatchStatus, PostType } from "@prisma/client";
 import { getAdminHint } from "@/lib/auth";
 import { getDemoStore } from "@/lib/demo-data";
 import { env } from "@/lib/env";
-import { prisma } from "@/lib/prisma";
+import { prisma, resetPrismaClient } from "@/lib/prisma";
 import type {
   CompetitionSummary,
   CommitteeRegistrationSummary,
