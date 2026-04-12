@@ -176,6 +176,8 @@ model CommitteeRegistration {
   coHeadName String
   imageUrl   String
   imageR2Key String?
+  coHeadImageUrl   String?
+  coHeadImageR2Key String?
   createdAt  DateTime             @default(now())
   updatedAt  DateTime             @updatedAt
   headEmail      String?

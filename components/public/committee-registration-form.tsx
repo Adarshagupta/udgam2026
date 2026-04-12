@@ -1,5 +1,6 @@
 "use client";
 
+import type { FormEvent } from "react";
 import { useRef, useState } from "react";
 
 import { galleryFileInputAccept, galleryImageFormatLabel } from "@/lib/gallery-upload";
@@ -25,9 +26,11 @@ export function CommitteeRegistrationForm({
     null,
   );
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setBusy(true);
     setMessage(null);
+    const formData = new FormData(event.currentTarget);
 
     const response = await fetch("/api/register/committee", {
       method: "POST",
@@ -47,7 +50,6 @@ export function CommitteeRegistrationForm({
       return;
     }
 
-    formRef.current?.reset();
     setMessage({
       tone: "success",
       text: `${categoryLabels[payload?.registration?.category ?? "COMMITTEE"]} registration for ${
@@ -69,10 +71,10 @@ export function CommitteeRegistrationForm({
 
         <form
           ref={formRef}
-          action={(formData) => {
-            void handleSubmit(formData);
-          }}
           className={styles.form}
+          onSubmit={(event) => {
+            void handleSubmit(event);
+          }}
         >
           <div className={styles.gridTwo}>
             <label className={styles.field}>
@@ -111,19 +113,79 @@ export function CommitteeRegistrationForm({
             </label>
           </div>
 
-          <label className={styles.field}>
-            <span className={styles.label}>Image Upload</span>
-            <input
-              accept={galleryFileInputAccept}
-              className={styles.input}
-              name="image"
-              required
-              type="file"
-            />
-            <p className={styles.support}>
-              Upload {galleryImageFormatLabel} up to {maxUploadSizeMb} MB.
-            </p>
-          </label>
+          <div className={styles.gridTwo}>
+            <label className={styles.field}>
+              <span className={styles.label}>Head Email</span>
+              <input
+                className={styles.input}
+                name="headEmail"
+                placeholder="head@udgam.com"
+                type="email"
+              />
+            </label>
+
+            <label className={styles.field}>
+              <span className={styles.label}>Head LinkedIn</span>
+              <input
+                className={styles.input}
+                name="headLinkedin"
+                placeholder="https://linkedin.com/in/head-name"
+                type="url"
+              />
+            </label>
+          </div>
+
+          <div className={styles.gridTwo}>
+            <label className={styles.field}>
+              <span className={styles.label}>Co-head Email</span>
+              <input
+                className={styles.input}
+                name="coHeadEmail"
+                placeholder="cohead@udgam.com"
+                type="email"
+              />
+            </label>
+
+            <label className={styles.field}>
+              <span className={styles.label}>Co-head LinkedIn</span>
+              <input
+                className={styles.input}
+                name="coHeadLinkedin"
+                placeholder="https://linkedin.com/in/cohead-name"
+                type="url"
+              />
+            </label>
+          </div>
+
+          <div className={styles.gridTwo}>
+            <label className={styles.field}>
+              <span className={styles.label}>Head Image</span>
+              <input
+                accept={galleryFileInputAccept}
+                className={styles.input}
+                name="headImage"
+                required
+                type="file"
+              />
+              <p className={styles.support}>
+                Upload {galleryImageFormatLabel} up to {maxUploadSizeMb} MB.
+              </p>
+            </label>
+
+            <label className={styles.field}>
+              <span className={styles.label}>Co-head Image</span>
+              <input
+                accept={galleryFileInputAccept}
+                className={styles.input}
+                name="coHeadImage"
+                required
+                type="file"
+              />
+              <p className={styles.support}>
+                Upload {galleryImageFormatLabel} up to {maxUploadSizeMb} MB.
+              </p>
+            </label>
+          </div>
 
           <div className={styles.actions}>
             <button

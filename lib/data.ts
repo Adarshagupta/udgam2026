@@ -5,7 +5,7 @@ import { MatchStatus, PostType } from "@prisma/client";
 import { getAdminHint } from "@/lib/auth";
 import { getDemoStore } from "@/lib/demo-data";
 import { env } from "@/lib/env";
-import { prisma, resetPrismaClient } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import type {
   CompetitionSummary,
   CommitteeRegistrationSummary,
@@ -75,6 +75,52 @@ async function withReadFallback<T>(
 
 function shouldUseDemoData() {
   return env.demoMode || !prisma;
+}
+
+function getDataErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function isTransientWriteIssue(error: unknown) {
+  const message = getDataErrorMessage(error);
+  return (
+    message.includes("Server has closed the connection") ||
+    message.includes("Connection terminated unexpectedly") ||
+    message.includes("Can't reach database server") ||
+    message.includes("ConnectionClosed")
+  );
+}
+
+function isSportImageSchemaDrift(error: unknown) {
+  const message = getDataErrorMessage(error);
+  return (
+    message.includes("Unknown argument `imageUrl`") ||
+    message.includes("Unknown field `imageUrl`") ||
+    message.includes("Sport.imageUrl") ||
+    message.includes("column") && message.includes("imageUrl")
+  );
+}
+
+function toSportImageSchemaError() {
+  return new Error(
+    "Sport image support is out of sync locally. Restart the dev server, then run `npm run prisma:generate` and `npm run db:push`.",
+  );
+}
+
+async function withWriteRecovery<T>(operation: () => Promise<T>) {
+  try {
+    return await operation();
+  } catch (error) {
+    if (isSportImageSchemaDrift(error)) {
+      throw toSportImageSchemaError();
+    }
+
+    if (isTransientWriteIssue(error)) {
+      throw new Error("Database connection dropped during save. Please retry once.");
+    }
+
+    throw error;
+  }
 }
 
 async function buildAvailableSlug(
@@ -147,7 +193,12 @@ function mapCommitteeRegistration(item: {
   title: string;
   headName: string;
   coHeadName: string;
+  headEmail: string | null;
+  headLinkedin: string | null;
+  coHeadEmail: string | null;
+  coHeadLinkedin: string | null;
   imageUrl: string;
+  coHeadImageUrl: string | null;
   createdAt: Date;
 }): CommitteeRegistrationSummary {
   return {
@@ -156,7 +207,12 @@ function mapCommitteeRegistration(item: {
     title: item.title,
     headName: item.headName,
     coHeadName: item.coHeadName,
+    headEmail: item.headEmail,
+    headLinkedin: item.headLinkedin,
+    coHeadEmail: item.coHeadEmail,
+    coHeadLinkedin: item.coHeadLinkedin,
     imageUrl: item.imageUrl,
+    coHeadImageUrl: item.coHeadImageUrl ?? item.imageUrl,
     createdAt: item.createdAt.toISOString(),
   };
 }
@@ -476,7 +532,12 @@ function createDemoCommitteeRegistration(input: CreateCommitteeRegistrationInput
     title: input.title.trim(),
     headName: input.headName.trim(),
     coHeadName: input.coHeadName.trim(),
+    headEmail: input.headEmail?.trim() || null,
+    headLinkedin: input.headLinkedin?.trim() || null,
+    coHeadEmail: input.coHeadEmail?.trim() || null,
+    coHeadLinkedin: input.coHeadLinkedin?.trim() || null,
     imageUrl: input.imageUrl,
+    coHeadImageUrl: input.coHeadImageUrl ?? input.imageUrl,
     createdAt: new Date().toISOString(),
   };
 
@@ -500,9 +561,17 @@ function updateDemoCommitteeRegistration(
   target.title = input.title.trim();
   target.headName = input.headName.trim();
   target.coHeadName = input.coHeadName.trim();
+  target.headEmail = input.headEmail?.trim() || null;
+  target.headLinkedin = input.headLinkedin?.trim() || null;
+  target.coHeadEmail = input.coHeadEmail?.trim() || null;
+  target.coHeadLinkedin = input.coHeadLinkedin?.trim() || null;
 
   if (input.imageUrl) {
     target.imageUrl = input.imageUrl;
+  }
+
+  if (input.coHeadImageUrl) {
+    target.coHeadImageUrl = input.coHeadImageUrl;
   }
 
   return target;
@@ -836,26 +905,28 @@ export async function createSport(input: CreateSportInput) {
     return createDemoSport(input);
   }
 
-  const slug = slugify(input.name);
-  const existing = await prisma!.sport.findUnique({
-    where: { slug },
+  return withWriteRecovery(async () => {
+    const slug = slugify(input.name);
+    const existing = await prisma!.sport.findUnique({
+      where: { slug },
+    });
+
+    if (existing) {
+      throw new Error("Sport already exists.");
+    }
+
+    const sport = await prisma!.sport.create({
+      data: {
+        name: input.name.trim(),
+        slug,
+        accentColor: input.accent?.trim() || "#f35c38",
+        imageUrl: input.imageUrl?.trim() || null,
+        tagline: input.tagline?.trim() || "Freshly added from the admin desk.",
+      },
+    });
+
+    return mapSport(sport);
   });
-
-  if (existing) {
-    throw new Error("Sport already exists.");
-  }
-
-  const sport = await prisma!.sport.create({
-    data: {
-      name: input.name.trim(),
-      slug,
-      accentColor: input.accent?.trim() || "#f35c38",
-      imageUrl: input.imageUrl?.trim() || null,
-      tagline: input.tagline?.trim() || "Freshly added from the admin desk.",
-    },
-  });
-
-  return mapSport(sport);
 }
 
 export async function updateSport(sportId: string, input: UpdateSportInput) {
@@ -863,32 +934,57 @@ export async function updateSport(sportId: string, input: UpdateSportInput) {
     return updateDemoSport(sportId, input);
   }
 
-  const existingSport = await prisma!.sport.findUnique({
-    where: { id: sportId },
-  });
+  return withWriteRecovery(async () => {
+    const trimmedName = input.name.trim();
+    const trimmedAccent = input.accent?.trim() || "#f35c38";
+    const trimmedImageUrl = input.imageUrl?.trim() || null;
+    const trimmedTagline =
+      input.tagline?.trim() || "Freshly updated from the admin desk.";
+    const slug = slugify(input.name);
+    const existingSport = await prisma!.sport.findUnique({
+      where: { id: sportId },
+    });
+    const fallbackSport =
+      existingSport ??
+      (await prisma!.sport.findFirst({
+        where: {
+          OR: [{ slug }, { name: trimmedName }],
+        },
+      }));
 
-  if (!existingSport) {
-    throw new Error("Sport was not found.");
-  }
+    const slugConflict = await prisma!.sport.findUnique({ where: { slug } });
 
-  const slug = slugify(input.name);
-  const slugConflict = await prisma!.sport.findUnique({ where: { slug } });
-  if (slugConflict && slugConflict.id !== sportId) {
-    throw new Error("Sport already exists.");
-  }
+    const targetSport = slugConflict ?? fallbackSport ?? null;
 
-  const updated = await prisma!.sport.update({
-    where: { id: sportId },
-    data: {
-      name: input.name.trim(),
+    if (!targetSport) {
+      const created = await prisma!.sport.create({
+        data: {
+          name: trimmedName,
+          slug,
+          accentColor: trimmedAccent,
+          imageUrl: trimmedImageUrl,
+          tagline: trimmedTagline,
+        },
+      });
+
+      return mapSport(created);
+    }
+
+    const baseData = {
+      name: trimmedName,
       slug,
-      accentColor: input.accent?.trim() || "#f35c38",
-      imageUrl: input.imageUrl?.trim() || null,
-      tagline: input.tagline?.trim() || "Freshly updated from the admin desk.",
-    },
-  });
+      accentColor: trimmedAccent,
+      imageUrl: trimmedImageUrl,
+      tagline: trimmedTagline,
+    };
 
-  return mapSport(updated);
+    const updated = await prisma!.sport.update({
+      where: { id: targetSport.id },
+      data: baseData,
+    });
+
+    return mapSport(updated);
+  });
 }
 
 export async function createTeam(input: CreateTeamInput) {
@@ -1089,8 +1185,14 @@ export async function createCommitteeRegistration(input: CreateCommitteeRegistra
       title: input.title.trim(),
       headName: input.headName.trim(),
       coHeadName: input.coHeadName.trim(),
+      headEmail: input.headEmail?.trim() || null,
+      headLinkedin: input.headLinkedin?.trim() || null,
+      coHeadEmail: input.coHeadEmail?.trim() || null,
+      coHeadLinkedin: input.coHeadLinkedin?.trim() || null,
       imageUrl: input.imageUrl,
       imageR2Key: input.imageR2Key,
+      coHeadImageUrl: input.coHeadImageUrl ?? input.imageUrl,
+      coHeadImageR2Key: input.coHeadImageR2Key,
     },
   });
 
@@ -1112,10 +1214,20 @@ export async function updateCommitteeRegistration(
       title: input.title.trim(),
       headName: input.headName.trim(),
       coHeadName: input.coHeadName.trim(),
+      headEmail: input.headEmail?.trim() || null,
+      headLinkedin: input.headLinkedin?.trim() || null,
+      coHeadEmail: input.coHeadEmail?.trim() || null,
+      coHeadLinkedin: input.coHeadLinkedin?.trim() || null,
       ...(input.imageUrl
         ? {
             imageUrl: input.imageUrl,
             imageR2Key: input.imageR2Key,
+          }
+        : {}),
+      ...(input.coHeadImageUrl
+        ? {
+            coHeadImageUrl: input.coHeadImageUrl,
+            coHeadImageR2Key: input.coHeadImageR2Key,
           }
         : {}),
     },

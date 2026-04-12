@@ -67,6 +67,10 @@ function matchesSportQuery(value: string, query: string) {
   return value.toLowerCase().includes(query);
 }
 
+function normalizeSportName(value: string) {
+  return value.trim().toLowerCase();
+}
+
 export default async function EventsPage({
   searchParams,
 }: {
@@ -96,6 +100,9 @@ export default async function EventsPage({
           matchesSportQuery(formatCompetitionMeta(entry), normalizedQuery),
       )
     : competitions;
+  const sportImageByName = new Map(
+    sports.map((sport) => [normalizeSportName(sport.name), sport.imageUrl]),
+  );
   const competitionGroups = groupCompetitions(filteredCompetitions);
 
   return (
@@ -195,6 +202,13 @@ export default async function EventsPage({
           <div className={styles.gridThree}>
             {group.items.map((entry) => (
               <article className={`${styles.darkCard} ${styles.competitionCard}`} key={entry.id}>
+                {sportImageByName.get(normalizeSportName(entry.sportName)) ? (
+                  <img
+                    alt={entry.sportName}
+                    className={styles.competitionImage}
+                    src={sportImageByName.get(normalizeSportName(entry.sportName)) ?? ""}
+                  />
+                ) : null}
                 <p className={`${styles.darkEyebrow} ${styles.competitionEyebrow}`}>
                   {entry.sportName} • {divisionLabels[entry.division]}
                 </p>

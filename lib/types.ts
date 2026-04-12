@@ -105,7 +105,12 @@ export interface CommitteeRegistrationSummary {
   title: string;
   headName: string;
   coHeadName: string;
+  headEmail: string | null;
+  headLinkedin: string | null;
+  coHeadEmail: string | null;
+  coHeadLinkedin: string | null;
   imageUrl: string;
+  coHeadImageUrl: string | null;
   createdAt: string;
 }
 
@@ -191,8 +196,14 @@ export interface CreateCommitteeRegistrationInput {
   title: string;
   headName: string;
   coHeadName: string;
+  headEmail?: string;
+  headLinkedin?: string;
+  coHeadEmail?: string;
+  coHeadLinkedin?: string;
   imageUrl: string;
   imageR2Key?: string;
+  coHeadImageUrl?: string;
+  coHeadImageR2Key?: string;
 }
 
 export interface UpdateCommitteeRegistrationInput {
@@ -200,8 +211,14 @@ export interface UpdateCommitteeRegistrationInput {
   title: string;
   headName: string;
   coHeadName: string;
+  headEmail?: string;
+  headLinkedin?: string;
+  coHeadEmail?: string;
+  coHeadLinkedin?: string;
   imageUrl?: string;
   imageR2Key?: string;
+  coHeadImageUrl?: string;
+  coHeadImageR2Key?: string;
 }
 
 

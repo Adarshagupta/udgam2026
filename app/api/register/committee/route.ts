@@ -14,6 +14,10 @@ const createCommitteeRegistrationSchema = z.object({
   title: z.string().trim().min(2).max(80),
   headName: z.string().trim().min(2).max(80),
   coHeadName: z.string().trim().min(2).max(80),
+  headEmail: z.union([z.string().trim().email().max(120), z.literal("")]),
+  headLinkedin: z.union([z.string().trim().url().max(240), z.literal("")]),
+  coHeadEmail: z.union([z.string().trim().email().max(120), z.literal("")]),
+  coHeadLinkedin: z.union([z.string().trim().url().max(240), z.literal("")]),
 });
 
 export const runtime = "nodejs";
@@ -25,32 +29,48 @@ function fileToDataUrl(upload: PreparedGalleryImageUpload) {
 
 export async function POST(request: Request) {
   const formData = await request.formData();
-  const file = formData.get("image");
+  const headImage = formData.get("headImage");
+  const coHeadImage = formData.get("coHeadImage");
   const parsed = createCommitteeRegistrationSchema.safeParse({
     category: String(formData.get("category") ?? ""),
     title: String(formData.get("title") ?? ""),
     headName: String(formData.get("headName") ?? ""),
     coHeadName: String(formData.get("coHeadName") ?? ""),
+    headEmail: String(formData.get("headEmail") ?? ""),
+    headLinkedin: String(formData.get("headLinkedin") ?? ""),
+    coHeadEmail: String(formData.get("coHeadEmail") ?? ""),
+    coHeadLinkedin: String(formData.get("coHeadLinkedin") ?? ""),
   });
 
-  if (!parsed.success || !(file instanceof File)) {
+  if (!parsed.success || !(headImage instanceof File) || !(coHeadImage instanceof File)) {
     return NextResponse.json(
-      { error: "Image, committee or executive name, head name, and co-head name are required." },
+      {
+        error:
+          "Head image, co-head image, committee or executive name, head name, and co-head name are required.",
+      },
       { status: 400 },
     );
   }
 
   try {
-    const upload = await prepareGalleryImageUpload(file);
-    let uploadResult: { key?: string; url: string };
+    const headUpload = await prepareGalleryImageUpload(headImage);
+    const coHeadUpload = await prepareGalleryImageUpload(coHeadImage);
+    let headUploadResult: { key?: string; url: string };
+    let coHeadUploadResult: { key?: string; url: string };
 
     if (env.r2.configured) {
-      uploadResult = await uploadImageToR2(upload, {
+      headUploadResult = await uploadImageToR2(headUpload, {
+        directory: "registrations/committee",
+      });
+      coHeadUploadResult = await uploadImageToR2(coHeadUpload, {
         directory: "registrations/committee",
       });
     } else if (env.demoMode) {
-      uploadResult = {
-        url: fileToDataUrl(upload),
+      headUploadResult = {
+        url: fileToDataUrl(headUpload),
+      };
+      coHeadUploadResult = {
+        url: fileToDataUrl(coHeadUpload),
       };
     } else {
       return NextResponse.json(
@@ -61,8 +81,10 @@ export async function POST(request: Request) {
 
     const registration = await createCommitteeRegistration({
       ...parsed.data,
-      imageUrl: uploadResult.url,
-      imageR2Key: uploadResult.key,
+      imageUrl: headUploadResult.url,
+      imageR2Key: headUploadResult.key,
+      coHeadImageUrl: coHeadUploadResult.url,
+      coHeadImageR2Key: coHeadUploadResult.key,
     });
 
     return NextResponse.json({ registration }, { status: 201 });

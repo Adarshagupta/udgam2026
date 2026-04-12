@@ -15,6 +15,10 @@ const updateCommitteeRegistrationSchema = z.object({
   title: z.string().trim().min(2).max(80),
   headName: z.string().trim().min(2).max(80),
   coHeadName: z.string().trim().min(2).max(80),
+  headEmail: z.union([z.string().trim().email().max(120), z.literal("")]),
+  headLinkedin: z.union([z.string().trim().url().max(240), z.literal("")]),
+  coHeadEmail: z.union([z.string().trim().email().max(120), z.literal("")]),
+  coHeadLinkedin: z.union([z.string().trim().url().max(240), z.literal("")]),
 });
 
 export const runtime = "nodejs";
@@ -44,19 +48,29 @@ export async function PATCH(request: Request, { params }: RouteProps) {
     title: String(formData.get("title") ?? ""),
     headName: String(formData.get("headName") ?? ""),
     coHeadName: String(formData.get("coHeadName") ?? ""),
+    headEmail: String(formData.get("headEmail") ?? ""),
+    headLinkedin: String(formData.get("headLinkedin") ?? ""),
+    coHeadEmail: String(formData.get("coHeadEmail") ?? ""),
+    coHeadLinkedin: String(formData.get("coHeadLinkedin") ?? ""),
   });
 
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid registration payload." }, { status: 400 });
   }
 
-  const image = formData.get("image");
+  const headImage = formData.get("headImage");
+  const coHeadImage = formData.get("coHeadImage");
 
   try {
-    let imageUpdate: { imageUrl?: string; imageR2Key?: string } = {};
+    let imageUpdate: {
+      imageUrl?: string;
+      imageR2Key?: string;
+      coHeadImageUrl?: string;
+      coHeadImageR2Key?: string;
+    } = {};
 
-    if (image instanceof File && image.size > 0) {
-      const upload = await prepareGalleryImageUpload(image);
+    if (headImage instanceof File && headImage.size > 0) {
+      const upload = await prepareGalleryImageUpload(headImage);
 
       if (env.r2.configured) {
         const uploadResult = await uploadImageToR2(upload, {
@@ -70,6 +84,32 @@ export async function PATCH(request: Request, { params }: RouteProps) {
       } else if (env.demoMode) {
         imageUpdate = {
           imageUrl: fileToDataUrl(upload),
+        };
+      } else {
+        return NextResponse.json(
+          { error: "Cloudflare R2 is not configured for registration uploads." },
+          { status: 503 },
+        );
+      }
+    }
+
+    if (coHeadImage instanceof File && coHeadImage.size > 0) {
+      const upload = await prepareGalleryImageUpload(coHeadImage);
+
+      if (env.r2.configured) {
+        const uploadResult = await uploadImageToR2(upload, {
+          directory: "registrations/committee",
+        });
+
+        imageUpdate = {
+          ...imageUpdate,
+          coHeadImageUrl: uploadResult.url,
+          coHeadImageR2Key: uploadResult.key,
+        };
+      } else if (env.demoMode) {
+        imageUpdate = {
+          ...imageUpdate,
+          coHeadImageUrl: fileToDataUrl(upload),
         };
       } else {
         return NextResponse.json(

@@ -87,10 +87,10 @@ export function AdminPanel({
     setMessage("");
 
     const payload = {
-      name: String(formData.get("name") ?? ""),
-      accent: String(formData.get("accent") ?? ""),
-      imageUrl: String(formData.get("imageUrl") ?? ""),
-      tagline: String(formData.get("tagline") ?? ""),
+      name: String(formData.get("name") ?? "").trim(),
+      accent: String(formData.get("accent") ?? "").trim(),
+      imageUrl: String(formData.get("imageUrl") ?? "").trim(),
+      tagline: String(formData.get("tagline") ?? "").trim(),
     };
 
     const response = await fetch("/api/admin/sports/" + sportId, {
@@ -1146,7 +1146,14 @@ export function AdminPanel({
                     </span>
                   </div>
 
-                  <img alt={registration.title} className={styles.thumb} src={registration.imageUrl} />
+                  <div className={styles.fieldGrid}>
+                    <img alt={registration.headName} className={styles.thumb} src={registration.imageUrl} />
+                    <img
+                      alt={registration.coHeadName}
+                      className={styles.thumb}
+                      src={registration.coHeadImageUrl ?? registration.imageUrl}
+                    />
+                  </div>
 
                   <div className={styles.fieldGrid}>
                     <label className={styles.label}>
@@ -1192,12 +1199,64 @@ export function AdminPanel({
                     </label>
                   </div>
 
+                  <div className={styles.fieldGrid}>
+                    <label className={styles.label}>
+                      Head Email
+                      <input
+                        className={styles.input}
+                        defaultValue={registration.headEmail ?? ""}
+                        name="headEmail"
+                        type="email"
+                      />
+                    </label>
+                    <label className={styles.label}>
+                      Head LinkedIn
+                      <input
+                        className={styles.input}
+                        defaultValue={registration.headLinkedin ?? ""}
+                        name="headLinkedin"
+                        type="url"
+                      />
+                    </label>
+                  </div>
+
+                  <div className={styles.fieldGrid}>
+                    <label className={styles.label}>
+                      Co-head Email
+                      <input
+                        className={styles.input}
+                        defaultValue={registration.coHeadEmail ?? ""}
+                        name="coHeadEmail"
+                        type="email"
+                      />
+                    </label>
+                    <label className={styles.label}>
+                      Co-head LinkedIn
+                      <input
+                        className={styles.input}
+                        defaultValue={registration.coHeadLinkedin ?? ""}
+                        name="coHeadLinkedin"
+                        type="url"
+                      />
+                    </label>
+                  </div>
+
                   <label className={styles.label}>
-                    Replace Image
+                    Replace Head Image
                     <input
                       accept={galleryFileInputAccept}
                       className={styles.input}
-                      name="image"
+                      name="headImage"
+                      type="file"
+                    />
+                  </label>
+
+                  <label className={styles.label}>
+                    Replace Co-head Image
+                    <input
+                      accept={galleryFileInputAccept}
+                      className={styles.input}
+                      name="coHeadImage"
                       type="file"
                     />
                   </label>
