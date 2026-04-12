@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import logo from "@/app/assets/logo.png";
 import styles from "@/components/site.module.css";
 
 const links = [
@@ -23,7 +25,12 @@ export function Navigation() {
     <div className={`${styles.chrome} ${isHome ? styles.chromeHome : ""}`.trim()}>
       <nav className={`${styles.nav} ${isHome ? styles.navHome : ""}`.trim()} aria-label="Primary">
         <Link className={styles.brand} href="/">
-          <span className={styles.brandMark}>UDGAM.</span>
+          <Image
+            alt="UDGAM"
+            className={styles.brandLogo}
+            priority
+            src={logo}
+          />
           <span className={styles.brandStamp}>{isHome ? "Festival Arc" : "Campus Route"}</span>
         </Link>
 

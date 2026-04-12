@@ -5,6 +5,61 @@
   animation: riseIn 360ms ease both;
 }
 
+.searchSection {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem 0 0.35rem;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.searchCopy {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.searchForm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.searchInput {
+  min-width: 0;
+  min-height: 3rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--ink-strong);
+  font: inherit;
+}
+
+.searchInput::placeholder {
+  color: var(--ink-soft);
+}
+
+.searchButton {
+  min-height: 3rem;
+  padding: 0.8rem 1.1rem;
+  border: 0;
+  border-radius: 0.85rem;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+  color: var(--paper);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.searchResult {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
 .catalogSection {
   display: grid;
   gap: 1.1rem;
@@ -275,6 +330,10 @@
 }
 
 @media (max-width: 640px) {
+  .searchForm {
+    grid-template-columns: 1fr;
+  }
+
   .darkCard {
     padding-right: 1.1rem;
     clip-path: none;

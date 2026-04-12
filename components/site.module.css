@@ -81,13 +81,11 @@
   flex-shrink: 0;
 }
 
-.brandMark {
-  font-family: var(--font-display);
-  font-size: clamp(1.25rem, 1.8vw, 1.6rem);
-  line-height: 0.88;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--paper);
+.brandLogo {
+  display: block;
+  width: clamp(5.4rem, 7vw, 7rem);
+  height: auto;
+  object-fit: contain;
 }
 
 .brandStamp {
@@ -410,22 +408,55 @@
     width: min(100vw - 1rem, 1440px);
   }
 
+  .chrome {
+    top: 0.55rem;
+    margin-bottom: 0.55rem;
+    padding-top: 0.4rem;
+  }
+
   .chromeHome {
-    margin-bottom: -2.8rem;
+    margin-bottom: -1.8rem;
   }
 
   .nav {
-    gap: 0.65rem;
+    gap: 0.45rem;
     width: min(100vw - 1rem, 40rem);
-    padding: 0.55rem;
+    padding: 0.4rem 0.45rem;
+    border-radius: 0.9rem;
+  }
+
+  .brand {
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  .brandLogo {
+    width: 4.9rem;
+  }
+
+  .brandStamp {
+    min-height: 1.28rem;
+    padding: 0.14rem 0.42rem;
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
   }
 
   .navLinks {
+    display: flex;
+    align-items: center;
+    gap: 0.24rem;
+    order: 3;
+    flex: 0 0 100%;
     width: 100%;
+    padding: 0.2rem;
     justify-content: flex-start;
+    border-radius: 0.7rem;
     overflow-x: auto;
+    overflow-y: hidden;
     flex-wrap: nowrap;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: inset 0 0 0 1px rgba(18, 214, 203, 0.12);
   }
 
   .navLinks::-webkit-scrollbar {
@@ -433,11 +464,54 @@
   }
 
   .navAction {
-    margin-left: auto;
+    min-width: 5.35rem;
+    min-height: 2.3rem;
+    padding: 0.56rem 0.82rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    margin-left: 0;
+  }
+
+  .navLink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2rem;
+    flex: 0 0 auto;
+    padding: 0.48rem 0.68rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .navLink::after {
+    left: 0.55rem;
+    right: 0.55rem;
+    bottom: 0.28rem;
   }
 
   .sectionHeader {
     align-items: flex-start;
     flex-direction: column;
+  }
+}
+
+@media (max-width: 520px) {
+  .brandLogo {
+    width: 4.5rem;
+  }
+
+  .brandStamp {
+    display: none;
+  }
+
+  .nav {
+    padding: 0.35rem 0.4rem;
+  }
+
+  .navAction {
+    min-width: 5rem;
+    padding-inline: 0.72rem;
   }
 }

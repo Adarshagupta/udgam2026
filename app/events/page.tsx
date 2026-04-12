@@ -63,13 +63,40 @@ function formatCompetitionMeta(entry: CompetitionSummary) {
   return parts.join(" • ");
 }
 
-export default async function EventsPage() {
+function matchesSportQuery(value: string, query: string) {
+  return value.toLowerCase().includes(query);
+}
+
+export default async function EventsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ q?: string }>;
+}) {
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const query = resolvedSearchParams.q?.trim() ?? "";
+  const normalizedQuery = query.toLowerCase();
   const [events, sports, competitions] = await Promise.all([
     getEvents(),
     getSports(),
     getCompetitionCatalog(),
   ]);
-  const competitionGroups = groupCompetitions(competitions);
+  const filteredSports = normalizedQuery
+    ? sports.filter(
+        (sport) =>
+          matchesSportQuery(sport.name, normalizedQuery) ||
+          matchesSportQuery(sport.tagline, normalizedQuery),
+      )
+    : sports;
+  const filteredCompetitions = normalizedQuery
+    ? competitions.filter(
+        (entry) =>
+          matchesSportQuery(entry.title, normalizedQuery) ||
+          matchesSportQuery(entry.sportName, normalizedQuery) ||
+          matchesSportQuery(entry.formatLabel ?? "", normalizedQuery) ||
+          matchesSportQuery(formatCompetitionMeta(entry), normalizedQuery),
+      )
+    : competitions;
+  const competitionGroups = groupCompetitions(filteredCompetitions);
 
   return (
     <div className={styles.page}>
@@ -80,6 +107,36 @@ export default async function EventsPage() {
         eyebrow="UDGAM events"
         title="Events & Fixtures"
       />
+
+      <section className={styles.searchSection}>
+        <div className={styles.searchCopy}>
+          <p className={styles.sectionEyebrow}>Search sports</p>
+          <h2 className={styles.sectionTitle}>Find a sport fast.</h2>
+          <p className={styles.sectionText}>
+            Search by sport name, format, or competition type.
+          </p>
+        </div>
+
+        <form action="/events" className={styles.searchForm}>
+          <input
+            aria-label="Search sports"
+            className={styles.searchInput}
+            defaultValue={query}
+            name="q"
+            placeholder="Search basketball, chess, doubles..."
+            type="search"
+          />
+          <button className={styles.searchButton} type="submit">
+            Search
+          </button>
+        </form>
+
+        {query ? (
+          <p className={styles.searchResult}>
+            Showing results for <strong>{query}</strong>.
+          </p>
+        ) : null}
+      </section>
 
       <div className={styles.gridThree}>
         {events.map((event) => (
@@ -96,7 +153,7 @@ export default async function EventsPage() {
       </div>
 
       <div className={styles.gridTwo}>
-        {sports.map((sport) => (
+        {filteredSports.map((sport) => (
           <article className={styles.card} key={sport.id}>
             <p className={styles.eyebrow}>Competition lane</p>
             <h2 className={styles.title}>{sport.name}</h2>
@@ -104,6 +161,14 @@ export default async function EventsPage() {
           </article>
         ))}
       </div>
+
+      {!filteredSports.length && !competitionGroups.length ? (
+        <article className={styles.card}>
+          <p className={styles.eyebrow}>No results</p>
+          <h2 className={styles.title}>No matching sport found.</h2>
+          <p className={styles.text}>Try a shorter name like volleyball, bgmi, or chess.</p>
+        </article>
+      ) : null}
 
       {competitionGroups.map((group) => (
         <section className={styles.catalogSection} key={group.key}>
