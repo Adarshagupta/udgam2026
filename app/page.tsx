@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Zen_Tokyo_Zoo } from "next/font/google";
 
+import { HeroBackgroundCarousel } from "@/components/public/hero-background-carousel";
 import { LiveGalleryRail } from "@/components/live/live-gallery-rail";
 import { LiveScoreBoard } from "@/components/live/live-score-board";
 import { SectionHeading } from "@/components/section-heading";
@@ -28,6 +30,13 @@ export const dynamic = "force-dynamic";
 
 const tilePatterns = ["grid", "rings", "ticks", "diagonal"] as const;
 
+const landingDisplayFont = Zen_Tokyo_Zoo({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-landing-display",
+});
+
 export default async function HomePage() {
   const [sports, events, featuredMatches, featuredImages, schedule]: [
     SportSummary[],
@@ -51,9 +60,9 @@ export default async function HomePage() {
   const featuredMatchCount = featuredMatches.length;
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ${landingDisplayFont.variable}`}>
       <ParallaxScene className={styles.heroScene} strength={18}>
-        <div className={`${styles.heroBackdrop} ${styles.layerSlow}`} />
+        <HeroBackgroundCarousel className={styles.layerSlow} />
         <div className={styles.heroFrame} aria-hidden="true">
           <svg
             className={styles.heroFrameSvg}
