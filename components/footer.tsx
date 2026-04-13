@@ -9,43 +9,44 @@ export function Footer() {
         <span aria-hidden className={styles.footerSeal} />
 
         <div className={styles.footerBrand}>
-          <p className={styles.sectionEyebrow}>UDGAM / CAMPUS SPORTS</p>
-          <h2 className={styles.footerBrandTitle}>Campus sport, shaped with precision.</h2>
+          <p className={styles.sectionEyebrow}>UDGAM / SRM UNIVERSITY-AP</p>
+          <h2 className={styles.footerBrandTitle}>National-level sports fest and partnership platform.</h2>
           <p className={styles.footerText}>
-            UDGAM brings fixtures, live scores, venue information, and campus moments
-            into one clean public site.
+            SRM University - AP, Mangalagiri Mandal, Neerukonda, Amaravathi,
+            Andhra Pradesh - 522502.
           </p>
         </div>
 
         <div className={styles.footerLinksPanel}>
-          <p className={styles.sectionEyebrow}>Explore</p>
+          <p className={styles.sectionEyebrow}>Quick links</p>
           <ul className={styles.footerList}>
             <li>
-              <Link href="/live">Live board</Link>
+              <Link href="/about">About UDGAM</Link>
             </li>
             <li>
-              <Link href="/events">Event deck</Link>
+              <Link href="/events">Brand partnership offers</Link>
             </li>
             <li>
-              <Link href="/gallery">Image wall</Link>
+              <Link href="/gallery">Our champions</Link>
             </li>
             <li>
-              <Link href="/admin">Organizer desk</Link>
+              <Link href="/contact">Contact us</Link>
             </li>
           </ul>
         </div>
 
         <div className={styles.footerMeta}>
           <div>
-            <p className={styles.sectionEyebrow}>Built on</p>
+            <p className={styles.sectionEyebrow}>Reach us</p>
             <p className={styles.footerText}>
-              Next.js, Prisma, Auth.js, Socket.IO, and Cloudflare R2.
+              Email: sports.council@srmap.edu.in
             </p>
+            <p className={styles.footerText}>Instagram: @udgam.srmuap</p>
           </div>
 
           <div className={styles.footerBottomRow}>
-            <p className={styles.footerText}>Built for UDGAM 2026.</p>
-            <p className={styles.footerMini}>SRM IST • Sports Fest Platform</p>
+            <p className={styles.footerText}>Sponsorship Head: Chinmaya Baki - 8096299900</p>
+            <p className={styles.footerMini}>UDGAM 2026 • Amaravati Campus</p>
           </div>
         </div>
       </div>
