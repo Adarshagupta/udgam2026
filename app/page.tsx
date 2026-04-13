@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Zen_Tokyo_Zoo } from "next/font/google";
+import type { CSSProperties } from "react";
 
 import { HeroBackgroundCarousel } from "@/components/public/hero-background-carousel";
 import { LiveGalleryRail } from "@/components/live/live-gallery-rail";
@@ -55,6 +56,15 @@ export default async function HomePage() {
   const featureMatch = featuredMatches[0];
   const headlineEvent = events[0];
   const headlineGallery = featuredImages[0];
+  const preLiveSports = sports.slice(0, 4);
+  const nextScheduleEntry = schedule[0];
+  const activeLiveCount = featuredMatches.filter((match) => match.status !== "SCHEDULED").length;
+  const spotlightSports = sports.slice(0, 3);
+  const imageReadySportCount = sports.filter((sport) => Boolean(sport.imageUrl)).length;
+  const esportsCount = sports.filter((sport) =>
+    /bgmi|free fire|valorant|chess/i.test(sport.name),
+  ).length;
+  const arenaSportsCount = Math.max(sports.length - esportsCount, 0);
 
   return (
     <div className={`${styles.page} ${landingDisplayFont.variable}`}>
@@ -93,8 +103,8 @@ export default async function HomePage() {
                 <span>SPORTS FEST</span>
               </h1>
               <p className={styles.heroText}>
-                The university sports festival with live scores, packed venues, and
-                nonstop campus energy.
+                UDGAM 2026 by SRM University-AP, Andhra Pradesh, brings together
+                college athletes for four days of competition, pride, and campus spirit.
               </p>
             </div>
 
@@ -156,13 +166,71 @@ export default async function HomePage() {
         </div>
       </ParallaxScene>
 
+      <section className={styles.preLiveSection}>
+        <div className={styles.preLiveShell}>
+          <article className={styles.preLiveLead}>
+            <span className={styles.preLiveLeadBadge}>Pre-live arena</span>
+            <h2 className={styles.preLiveLeadTitle}>Countdown to first whistle.</h2>
+            <p className={styles.preLiveLeadText}>
+              Scan the next sports wave, lock your route, and jump into live fixtures as soon as
+              match windows open.
+            </p>
+
+            <div className={styles.preLiveLeadMeta}>
+              <span>{nextScheduleEntry ? nextScheduleEntry.title : "Main stage fixtures"}</span>
+              <span>
+                {nextScheduleEntry
+                  ? formatDateTime(nextScheduleEntry.time)
+                  : headlineEvent
+                    ? formatDateTime(headlineEvent.start)
+                    : "Today"}
+              </span>
+            </div>
+
+            <div className={styles.preLiveMetricGrid}>
+              <div className={styles.preLiveMetric}>
+                <span className={styles.preLiveMetricLabel}>Sports in queue</span>
+                <span className={styles.preLiveMetricValue}>{sports.length}</span>
+              </div>
+              <div className={styles.preLiveMetric}>
+                <span className={styles.preLiveMetricLabel}>Active matches</span>
+                <span className={styles.preLiveMetricValue}>{activeLiveCount}</span>
+              </div>
+            </div>
+          </article>
+
+          <div className={styles.preLiveRail}>
+            {preLiveSports.map((sport, index) => (
+              <article
+                className={styles.preLiveCard}
+                key={`prelive-${sport.id}`}
+                style={{ "--prelive-accent": sport.accent } as CSSProperties}
+              >
+                {sport.imageUrl ? (
+                  <div
+                    aria-hidden="true"
+                    className={styles.preLiveImage}
+                    style={{ backgroundImage: `url(${sport.imageUrl})` } as CSSProperties}
+                  />
+                ) : null}
+                <div className={styles.preLiveShade} aria-hidden="true" />
+                <span className={styles.preLiveIndex}>{String(index + 1).padStart(2, "0")}</span>
+                <h3 className={styles.preLiveTitle}>{sport.name}</h3>
+                <p className={styles.preLiveText}>{sport.tagline}</p>
+                <span className={styles.preLiveTag}>Arena lane {index + 1}</span>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className={styles.liveSection}>
         <div className={styles.liveSectionTop}>
           <div className={styles.liveHeadingShell}>
             <SectionHeading
-              eyebrow="Live control"
-              text="Scores, updates, and next calls from every active venue."
-              title="Matchday command center."
+              eyebrow="Live sports"
+              text="Follow ongoing fixtures, scorelines, and key match moments across venues."
+              title="Matchday highlights."
             />
           </div>
 
@@ -200,21 +268,87 @@ export default async function HomePage() {
       <section className={styles.sportsSection}>
         <SectionHeading
           eyebrow="Sports"
-          text="From quick-court battles to long-form finals, each format has its own rhythm."
-          title="Choose your battleground."
+          text="Indoor sports, outdoor contests, and e-sports all come together under one festival." 
+          title="Compete across every arena."
         />
 
-        <div className={styles.sportGrid}>
+        <div className={styles.sportRail}>
           {sports.map((sport, index) => (
             <SportHighlightTile
               accent={sport.accent}
               className=""
+              imageUrl={sport.imageUrl}
               key={sport.id}
               label="UDGAM sport"
               pattern={tilePatterns[index % tilePatterns.length]}
               text={sport.tagline}
               title={sport.name}
             />
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.sportSpotlightSection}>
+        <SectionHeading
+          eyebrow="Spotlight"
+          text="Big disciplines, loud matchups, and crowd-favorite arenas shaping this season."
+          title="Featured sports right now."
+        />
+
+        <div className={styles.spotlightGrid}>
+          {spotlightSports.map((sport) => (
+            <article
+              className={styles.spotlightCard}
+              key={`spot-${sport.id}`}
+              style={{ "--spot-accent": sport.accent } as CSSProperties}
+            >
+              {sport.imageUrl ? (
+                <div
+                  aria-hidden="true"
+                  className={styles.spotlightImage}
+                  style={{ backgroundImage: `url(${sport.imageUrl})` } as CSSProperties}
+                />
+              ) : null}
+              <div className={styles.spotlightShade} aria-hidden="true" />
+              <span className={styles.spotlightKicker}>UDGAM spotlight</span>
+              <h3 className={styles.spotlightTitle}>{sport.name}</h3>
+              <p className={styles.spotlightText}>{sport.tagline}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.sportStatsSection}>
+        <SectionHeading
+          eyebrow="Sports Pulse"
+          text="A quick pulse check of the competition roster currently live in your data feed."
+          title="Festival sports at a glance."
+        />
+
+        <div className={styles.sportStatsGrid}>
+          <article className={styles.sportStatCard}>
+            <span className={styles.sportStatLabel}>Total sports</span>
+            <span className={styles.sportStatValue}>{sports.length}</span>
+          </article>
+          <article className={styles.sportStatCard}>
+            <span className={styles.sportStatLabel}>With gallery image</span>
+            <span className={styles.sportStatValue}>{imageReadySportCount}</span>
+          </article>
+          <article className={styles.sportStatCard}>
+            <span className={styles.sportStatLabel}>Arena sports</span>
+            <span className={styles.sportStatValue}>{arenaSportsCount}</span>
+          </article>
+          <article className={styles.sportStatCard}>
+            <span className={styles.sportStatLabel}>E-sports + mind games</span>
+            <span className={styles.sportStatValue}>{esportsCount}</span>
+          </article>
+        </div>
+
+        <div className={styles.sportNameRail}>
+          {sports.map((sport) => (
+            <span className={styles.sportNamePill} key={`pill-${sport.id}`}>
+              {sport.name}
+            </span>
           ))}
         </div>
       </section>
@@ -227,8 +361,8 @@ export default async function HomePage() {
             </Link>
           }
           eyebrow="Schedule"
-          text="Track what starts next and where to be before kickoff."
-          title="Plan your UDGAM run."
+          text="Track match timings, venue slots, and event flow for each day of UDGAM 2026."
+          title="Plan your sports day."
         />
 
         <div className={styles.scheduleFlow}>
@@ -255,8 +389,8 @@ export default async function HomePage() {
           <span className={styles.finalBadge}>UDGAM 2026 live</span>
           <h2 className={styles.finalTitle}>Everything set for game day.</h2>
           <p className={styles.finalText}>
-            Register your team, follow fixtures in real time, and stay locked in for
-            announcements, media drops, and final results.
+            Join SRM University-AP's flagship sports fest, register your committee,
+            and stay tuned for fixtures, results, and matchday announcements.
           </p>
         </div>
 

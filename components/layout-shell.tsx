@@ -24,6 +24,58 @@ export function LayoutShell({ children }: LayoutShellProps) {
     };
   }, [isAdminRoute]);
 
+  useEffect(() => {
+    const main = document.querySelector("main");
+
+    if (!(main instanceof HTMLElement)) {
+      return;
+    }
+
+    const revealTargets = Array.from(
+      main.querySelectorAll<HTMLElement>("main > *, main > * > section, main > * > article"),
+    );
+
+    if (revealTargets.length === 0) {
+      return;
+    }
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) {
+      for (const target of revealTargets) {
+        target.classList.add("scrollRevealVisible");
+      }
+      return;
+    }
+
+    for (const target of revealTargets) {
+      target.classList.add("scrollReveal");
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("scrollRevealVisible");
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      {
+        threshold: 0.16,
+        rootMargin: "0px 0px -12% 0px",
+      },
+    );
+
+    for (const target of revealTargets) {
+      observer.observe(target);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [pathname]);
+
   return (
     <>
       {!isAdminRoute ? <Preloader /> : null}

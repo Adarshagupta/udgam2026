@@ -1,18 +1,21 @@
-import "dotenv/config";
+import 'dotenv/config';
 
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
-import { Pool } from "pg";
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '@prisma/client';
+import { Pool } from 'pg';
 
-import { competitionSeedEntries, sportSeedEntries } from "../lib/competition-catalog";
-import { slugify } from "../lib/utils";
+import { competitionSeedEntries, sportSeedEntries } from '../lib/competition-catalog';
+import { getSportImageEntry } from '../lib/sport-image-catalog';
+import { slugify } from '../lib/utils';
 
-if (!process.env.DATABASE_URL?.trim()) {
-  throw new Error("DATABASE_URL is required to seed the sports catalogue.");
+const databaseUrl = process.env.DATABASE_URL?.trim() ?? '';
+
+if (databaseUrl === '') {
+  throw new Error('DATABASE_URL is required to seed the sports catalogue.');
 }
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: databaseUrl,
 });
 
 const prisma = new PrismaClient({
@@ -22,18 +25,21 @@ const prisma = new PrismaClient({
 async function main() {
   for (const sport of sportSeedEntries) {
     const slug = slugify(sport.name);
+    const imageEntry = getSportImageEntry(sport.name);
 
     await prisma.sport.upsert({
       where: { slug },
       update: {
         name: sport.name,
         accentColor: sport.accent,
+        imageUrl: imageEntry?.publicUrl ?? null,
         tagline: sport.tagline,
       },
       create: {
         name: sport.name,
         slug,
         accentColor: sport.accent,
+        imageUrl: imageEntry?.publicUrl ?? null,
         tagline: sport.tagline,
       },
     });
@@ -71,7 +77,7 @@ async function main() {
   }
 
   console.log(
-    `Seeded ${sportSeedEntries.length} sports and ${competitionSeedEntries.length} competition entries.`,
+    'Seeded ' + sportSeedEntries.length + ' sports and ' + competitionSeedEntries.length + ' competition entries.',
   );
 }
 
@@ -81,6 +87,6 @@ main()
     process.exitCode = 1;
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await prisma['$disconnect']();
     await pool.end();
   });

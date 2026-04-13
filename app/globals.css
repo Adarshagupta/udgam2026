@@ -120,6 +120,20 @@ img {
   min-height: 100vh;
 }
 
+.scrollReveal {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0) scale(0.99);
+  transition:
+    opacity 520ms ease,
+    transform 620ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.scrollRevealVisible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
 @keyframes floatDrift {
   0%,
   100% {
@@ -159,5 +173,14 @@ img {
 
   .siteMainAdmin {
     width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollReveal,
+  .scrollRevealVisible {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

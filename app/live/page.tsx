@@ -12,8 +12,8 @@ export default async function LivePage() {
   return (
     <div className={styles.page}>
       <PageBanner
-        chips={["Live scores", "Realtime", "Organizer synced"]}
-        description="Updated from the live desk across courts, halls, and grounds."
+        chips={["Live scores", "Matchday", "UDGAM 2026"]}
+        description="Follow score updates from ongoing UDGAM 2026 matches across all venues."
         eyebrow="UDGAM live"
         title="Live Scores"
       />

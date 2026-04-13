@@ -6,35 +6,35 @@ export default function AboutPage() {
   return (
     <div className={styles.page}>
       <PageBanner
-        chips={["Students", "Competition", "Campus culture"]}
-        description="UDGAM is the university sports festival for teams, spectators, and live campus energy."
+        chips={["SRM University-AP", "Sports", "Campus spirit"]}
+        description="UDGAM 2026 is SRM University-AP's annual sports festival celebrating talent, teamwork, and competition."
         eyebrow="About UDGAM"
         title="About UDGAM"
       />
 
       <div className={styles.gridThree}>
         <article className={styles.card}>
-          <p className={styles.eyebrow}>Students first</p>
-          <h2 className={styles.title}>Built for teams and spectators.</h2>
+          <p className={styles.eyebrow}>Festival identity</p>
+          <h2 className={styles.title}>SRM University-AP's sports celebration.</h2>
           <p className={styles.text}>
-            Fixtures, venues, and match updates stay readable for players, volunteers,
-            and the wider campus audience.
+            UDGAM brings students, athletes, and supporters together through
+            high-energy fixtures, crowd support, and university pride.
           </p>
         </article>
         <article className={styles.card}>
-          <p className={styles.eyebrow}>Live operations</p>
-          <h2 className={styles.title}>Scores and media move in real time.</h2>
+          <p className={styles.eyebrow}>Sports focus</p>
+          <h2 className={styles.title}>Indoor, outdoor, and e-sports.</h2>
           <p className={styles.text}>
-            The public site is connected to an organizer desk for instant score and
-            gallery updates during the festival.
+            From court-based championships to field events and digital arenas,
+            UDGAM 2026 covers multiple formats for every kind of competitor.
           </p>
         </article>
         <article className={styles.darkCard}>
-          <p className={styles.darkEyebrow}>Future-ready</p>
-          <h2 className={styles.title}>Mascot and 3D scenes can land later.</h2>
+          <p className={styles.darkEyebrow}>Event mission</p>
+          <h2 className={styles.title}>Compete hard. Represent your campus.</h2>
           <p className={styles.darkText}>
-            The visual system is structured so representative 3D characters can be
-            added without redesigning the site again.
+            Every match at UDGAM 2026 is built around discipline, teamwork,
+            and the spirit of university-level sports.
           </p>
         </article>
       </div>
