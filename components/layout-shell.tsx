@@ -32,7 +32,7 @@ export function LayoutShell({ children }: LayoutShellProps) {
     }
 
     const revealTargets = Array.from(
-      main.querySelectorAll<HTMLElement>("main > *, main > * > section, main > * > article"),
+      main.querySelectorAll<HTMLElement>("section, article"),
     );
 
     if (revealTargets.length === 0) {
@@ -52,6 +52,13 @@ export function LayoutShell({ children }: LayoutShellProps) {
       target.classList.add("scrollReveal");
     }
 
+    // Safety net: if intersection callbacks are delayed, do not leave content hidden.
+    const forceRevealTimer = window.setTimeout(() => {
+      for (const target of revealTargets) {
+        target.classList.add("scrollRevealVisible");
+      }
+    }, 900);
+
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -62,7 +69,7 @@ export function LayoutShell({ children }: LayoutShellProps) {
         }
       },
       {
-        threshold: 0.16,
+        threshold: 0.05,
         rootMargin: "0px 0px -12% 0px",
       },
     );
@@ -72,6 +79,7 @@ export function LayoutShell({ children }: LayoutShellProps) {
     }
 
     return () => {
+      window.clearTimeout(forceRevealTimer);
       observer.disconnect();
     };
   }, [pathname]);
