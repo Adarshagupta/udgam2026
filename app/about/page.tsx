@@ -3,6 +3,72 @@ import { PageBanner } from "@/components/page-banner";
 
 import styles from "@/app/subpage.module.css";
 
+const champions = [
+  {
+    name: "Anamika",
+    id: "AP25322130115",
+    imageSrc: "/about/anamika.png",
+    achievement:
+      "Won Gold Medal in Heptathlon at the All-India Inter-University Athletics Competition, Mangalore.",
+  },
+  {
+    name: "Sarthak",
+    id: "AP25211400007",
+    imageSrc: "/about/sarthak.png",
+    achievement:
+      "National athletics throws competition silver medalist (2025) in Shot Put.",
+  },
+  {
+    name: "Aditya",
+    id: "AP25211400014",
+    imageSrc: "/about/aditya.png",
+    achievement:
+      "Won Gold Medal in Javelin Throw at the All-India Inter-University Athletics Competition, Mangalore.",
+  },
+  {
+    name: "Mubhasena",
+    id: "AP24322130070",
+    imageSrc: "/about/mubhasena.png",
+    achievement:
+      "Gold Medal in Long Jump at the All-India Inter-University Athletics Competition.",
+  },
+  {
+    name: "Himanshu",
+    id: "AP25211400011",
+    imageSrc: "/about/himanshu.png",
+    achievement:
+      "Junior National Gold with a Junior National Record (October 2025), and Junior Asia medalist in Javelin Throw.",
+  },
+  {
+    name: "AISAN",
+    hideName: true,
+    imageSrc: "/about/aisan.png",
+    achievement:
+      "Bronze - Junior World Championship, and representation at the Asian Games.",
+  },
+  {
+    name: "KARNATAKA",
+    hideName: true,
+    imageSrc: "/about/karnataka.png",
+    achievement:
+      "Junior World Championship milestone with Karnataka International and Orissa International appearances.",
+  },
+  {
+    name: "YUGANDA",
+    hideName: true,
+    imageSrc: "/about/yuganda.png",
+    achievement:
+      "Junior World Championship milestone and Yuganda International Gold Medal.",
+  },
+  {
+    name: "BANGLADESH",
+    hideName: true,
+    imageSrc: "/about/bangladesh.png",
+    achievement:
+      "Bangladesh International Championship achievement.",
+  },
+];
+
 export default function AboutPage() {
   return (
     <div className={styles.page}>
@@ -87,22 +153,47 @@ export default function AboutPage() {
           <article className={styles.card}>
             <p className={styles.eyebrow}>About UDGAM</p>
             <p className={styles.text}>
-              Udgam is the annual sports festival of our college, designed to bring
-              together students from different disciplines to celebrate athleticism,
-              teamwork, and competitive spirit. It serves as a vibrant platform
-              where participants showcase their skills across a variety of indoor
-              and outdoor sports, ranging from traditional games like cricket,
-              football, and athletics to more contemporary events.
+              UDGAM, derived from the Sanskrit word meaning "to rise" or "origin",
+              is the flagship annual sports fest of SRM University-AP.
             </p>
             <p className={styles.text}>
-              Beyond competition, Udgam fosters unity and enthusiasm on campus,
-              encouraging students to step out of their academic routines and
-              engage in physical activity and collaboration. The festival is marked
-              by high energy, cheering crowds, and a strong sense of camaraderie,
-              making it one of the most anticipated and memorable events in the
-              college calendar.
+              It is a dynamic celebration of athletic excellence, where students from
+              across India come together to compete, collaborate, and showcase their
+              passion for sports. UDGAM reflects the university's commitment to
+              holistic development - nurturing discipline, teamwork, resilience, and
+              leadership through sports.
+            </p>
+            <p className={styles.text}>
+              Since its inception, UDGAM has grown into a national-level sports fest,
+              attracting participation over 4000+ athletes across 70+ institutions.
             </p>
           </article>
+        </div>
+      </section>
+
+      <section className={styles.catalogSection}>
+        <div className={styles.sectionHeader}>
+          <div className={styles.sectionCopy}>
+            <p className={styles.sectionEyebrow}>Student Achievements</p>
+            <h2 className={styles.sectionTitle}>OUR CHAMPIONS</h2>
+          </div>
+        </div>
+
+        <div className={styles.gridThree}>
+          {champions.map((champion) => (
+            <article className={styles.card} key={champion.imageSrc}>
+              <Image
+                alt={`${champion.name} profile`}
+                className={styles.sportCardImage}
+                height={720}
+                src={champion.imageSrc}
+                width={1280}
+              />
+              {champion.id ? <p className={styles.eyebrow}>{champion.id}</p> : null}
+              {champion.hideName ? null : <h3 className={styles.title}>{champion.name}</h3>}
+              <p className={styles.text}>{champion.achievement}</p>
+            </article>
+          ))}
         </div>
       </section>
     </div>
