@@ -650,10 +650,18 @@
   scroll-snap-align: start;
   transform: translateY(0);
   transition: transform 280ms ease;
+  text-decoration: none;
 }
 
 .preLiveCard:hover {
   transform: translateY(-6px);
+}
+
+.preLiveCard:focus-visible,
+.gameLinkReset:focus-visible,
+.spotlightCard:focus-visible {
+  outline: 2px solid rgba(255, 78, 54, 0.9);
+  outline-offset: 2px;
 }
 
 .preLiveImage,
@@ -917,6 +925,12 @@
   scroll-snap-align: start;
 }
 
+.gameLinkReset {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
 .sportSpotlightSection {
   gap: 1.2rem;
 }
@@ -940,6 +954,7 @@
   border: 1px solid rgba(239, 230, 216, 0.18);
   box-shadow: var(--shadow-panel);
   background: linear-gradient(140deg, rgba(5, 8, 16, 0.95), rgba(15, 29, 42, 0.9));
+  text-decoration: none;
 }
 
 .spotlightImage,

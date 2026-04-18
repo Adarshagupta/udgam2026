@@ -207,10 +207,13 @@ export default async function HomePage() {
 
           <div className={styles.preLiveRail}>
             {preLiveSports.map((sport, index) => (
-              <article
+              <Link
                 className={styles.preLiveCard}
                 key={`prelive-${sport.id}`}
+                href={registrationUrl}
+                rel="noopener noreferrer"
                 style={{ "--prelive-accent": sport.accent } as CSSProperties}
+                target="_blank"
               >
                 {sport.imageUrl ? (
                   <div
@@ -224,7 +227,7 @@ export default async function HomePage() {
                 <h3 className={styles.preLiveTitle}>{sport.name}</h3>
                 <p className={styles.preLiveText}>{sport.tagline}</p>
                 <span className={styles.preLiveTag}>Arena lane {index + 1}</span>
-              </article>
+              </Link>
             ))}
           </div>
         </div>
@@ -280,16 +283,23 @@ export default async function HomePage() {
 
         <div className={styles.sportRail}>
           {sports.map((sport, index) => (
-            <SportHighlightTile
-              accent={sport.accent}
-              className=""
-              imageUrl={sport.imageUrl}
+            <Link
+              className={styles.gameLinkReset}
+              href={registrationUrl}
               key={sport.id}
-              label="UDGAM sport"
-              pattern={tilePatterns[index % tilePatterns.length]}
-              text={sport.tagline}
-              title={sport.name}
-            />
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <SportHighlightTile
+                accent={sport.accent}
+                className=""
+                imageUrl={sport.imageUrl}
+                label="UDGAM sport"
+                pattern={tilePatterns[index % tilePatterns.length]}
+                text={sport.tagline}
+                title={sport.name}
+              />
+            </Link>
           ))}
         </div>
       </section>
@@ -303,10 +313,13 @@ export default async function HomePage() {
 
         <div className={styles.spotlightGrid}>
           {spotlightSports.map((sport) => (
-            <article
+            <Link
               className={styles.spotlightCard}
+              href={registrationUrl}
               key={`spot-${sport.id}`}
+              rel="noopener noreferrer"
               style={{ "--spot-accent": sport.accent } as CSSProperties}
+              target="_blank"
             >
               {sport.imageUrl ? (
                 <div
@@ -319,7 +332,7 @@ export default async function HomePage() {
               <span className={styles.spotlightKicker}>UDGAM spotlight</span>
               <h3 className={styles.spotlightTitle}>{sport.name}</h3>
               <p className={styles.spotlightText}>{sport.tagline}</p>
-            </article>
+            </Link>
           ))}
         </div>
       </section>
