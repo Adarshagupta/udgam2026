@@ -4,6 +4,8 @@ import { PageBanner } from "@/components/page-banner";
 
 import styles from "@/app/subpage.module.css";
 
+const registrationUrl = "https://payment.collexo.com/pay-fee/srm-ap-events";
+
 export default function ContactPage() {
   return (
     <div className={styles.page}>
@@ -29,7 +31,9 @@ export default function ContactPage() {
           <p className={styles.eyebrow}>Registrations</p>
           <h2 className={styles.title}>Committee Registration</h2>
           <p className={styles.text}>Submit committee and executive entries for UDGAM 2026.</p>
-          <Link href="/register/committee">Open registration</Link>
+          <Link href={registrationUrl} rel="noopener noreferrer" target="_blank">
+            Open registration
+          </Link>
         </article>
         <article className={styles.darkCard}>
           <p className={styles.darkEyebrow}>Campus sports office</p>

@@ -29,6 +29,37 @@ const committeeSlots = [
   "Traditional Committee",
 ];
 
+const committeeLeadsBySlot = new Map([
+  ["Design", { headName: "Pabbathi Thrishanth Reddy", coHeadName: "Shilpi jha" }],
+  [
+    "Post Production",
+    { headName: "K. Manikanta Srinu, G. Satvik", coHeadName: "Karthikeya" },
+  ],
+  ["Informal Events", { headName: "Pravallika Gorle", coHeadName: "Praneeth Kumar" }],
+  ["Registration", { headName: "Sanjeev Reddy", coHeadName: "jaswanth sai tangudu" }],
+  ["Refreshments", { headName: "Varnash", coHeadName: "vamsi, Ankith" }],
+  ["Medical and safe guard", { headName: "Jayanth", coHeadName: "keerthi" }],
+  ["Public Relations", { headName: "Chinmaya", coHeadName: "varun" }],
+  [
+    "Media Productions",
+    { headName: "Sabbani Sathwik", coHeadName: "Krishna Prajeeth" },
+  ],
+  [
+    "Accommodation",
+    { headName: "N .Sai Ganesh Reddy", coHeadName: "Ch.Yaswitha Reddy" },
+  ],
+  ["Logistics & Hospitality", { headName: "Awaiting submission", coHeadName: "S.Vedhaaabhiram Reddy" }],
+  ["Transportation", { headName: "Sandeep.Madala", coHeadName: "Jai Sai Raj" }],
+  [
+    "Cultural Committee",
+    { headName: "Revanth Vadisetty", coHeadName: "Bhargav Ram Deekshith Puvvada" },
+  ],
+  [
+    "Traditional Committee",
+    { headName: "Muthya Prasadh Kommuru", coHeadName: "J Gokul Krishna" },
+  ],
+]);
+
 const committeeImageFiles = [
   "ACCOMMODATION .JPG",
   "Cultural.JPG",
@@ -118,12 +149,19 @@ export default async function RegistrationsPage() {
         {slottedRegistrations.map(({ slot, entry }) => {
           if (!entry) {
             const slotImageSrc = getCommitteeImageSrc(slot);
+            const slotLeads = committeeLeadsBySlot.get(slot) ?? {
+              headName: "Awaiting submission",
+              coHeadName: "Awaiting submission",
+            };
 
             return (
               <article className={styles.darkCard} key={`slot-${slot}`}>
                 <p className={styles.darkEyebrow}>Committee</p>
                 <h2 className={styles.title}>{slot}</h2>
-                <p className={styles.darkText}>Slot reserved. Submission pending.</p>
+                <div className={styles.metaRow}>
+                  <span>Head: {slotLeads.headName}</span>
+                  <span>Co-head: {slotLeads.coHeadName}</span>
+                </div>
                 {slotImageSrc ? (
                   <Image
                     alt={`${slot} visual`}
@@ -133,10 +171,6 @@ export default async function RegistrationsPage() {
                     width={320}
                   />
                 ) : null}
-                <div className={styles.metaRow}>
-                  <span>Head: Awaiting submission</span>
-                  <span>Co-head: Awaiting submission</span>
-                </div>
               </article>
             );
           }
