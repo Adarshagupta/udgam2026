@@ -14,10 +14,10 @@ const sportImageEntries: SportImageEntry[] = [
   { name: 'Badminton', sourceRelativePath: 'img/sports/badminton.png', publicUrl: '/sports/badminton.png' },
   { name: 'Table Tennis', sourceRelativePath: 'img/sports/tabletennis.png', publicUrl: '/sports/tabletennis.png' },
   { name: 'Chess', sourceRelativePath: 'img/sports/ches.png', publicUrl: '/sports/ches.png' },
-  { name: 'BGMI', sourceRelativePath: 'img/e-sports/pubg.png', publicUrl: '/sports/pubg.png' },
-  { name: 'Free Fire', sourceRelativePath: 'img/e-sports/cod.png', publicUrl: '/sports/cod.png' },
+  { name: 'BGMI', sourceRelativePath: 'img/sports/pubg.png', publicUrl: '/sports/pubg.png' },
+  { name: 'Free Fire', sourceRelativePath: 'img/sports/cod.png', publicUrl: '/sports/cod.png' },
   { name: 'Real Cricket', sourceRelativePath: 'img/sports/cricket.png', publicUrl: '/sports/cricket.png' },
-  { name: 'Valorant', sourceRelativePath: 'img/e-sports/v.png', publicUrl: '/sports/v.png' },
+  { name: 'Valorant', sourceRelativePath: 'img/sports/v.png', publicUrl: '/sports/v.png' },
 ];
 
 export const sportImageBySlug = new Map(
