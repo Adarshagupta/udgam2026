@@ -57,15 +57,7 @@ export default async function HomePage() {
   const featureMatch = featuredMatches[0];
   const headlineEvent = events[0];
   const headlineGallery = featuredImages[0];
-  const preLiveSports = sports.slice(0, 4);
-  const nextScheduleEntry = schedule[0];
-  const activeLiveCount = featuredMatches.filter((match) => match.status !== "SCHEDULED").length;
   const spotlightSports = sports.slice(0, 3);
-  const imageReadySportCount = sports.filter((sport) => Boolean(sport.imageUrl)).length;
-  const esportsCount = sports.filter((sport) =>
-    /bgmi|free fire|valorant|chess/i.test(sport.name),
-  ).length;
-  const arenaSportsCount = Math.max(sports.length - esportsCount, 0);
 
   return (
     <div className={`${styles.page} ${landingDisplayFont.variable}`}>
@@ -172,64 +164,33 @@ export default async function HomePage() {
         </div>
       </ParallaxScene>
 
-      <section className={styles.preLiveSection}>
-        <div className={styles.preLiveShell}>
-          <article className={styles.preLiveLead}>
-            <span className={styles.preLiveLeadBadge}>Pre-live arena</span>
-            <h2 className={styles.preLiveLeadTitle}>Countdown to first whistle.</h2>
-            <p className={styles.preLiveLeadText}>
-              Scan the next sports wave, lock your route, and jump into live fixtures as soon as
-              match windows open.
-            </p>
+      <section className={styles.sportsSection}>
+        <SectionHeading
+          eyebrow="Sports"
+          text="Indoor sports, outdoor contests, and e-sports all come together under one festival." 
+          title="Compete across every arena."
+        />
 
-            <div className={styles.preLiveLeadMeta}>
-              <span>{nextScheduleEntry ? nextScheduleEntry.title : "Main stage fixtures"}</span>
-              <span>
-                {nextScheduleEntry
-                  ? formatDateTime(nextScheduleEntry.time)
-                  : headlineEvent
-                    ? formatDateTime(headlineEvent.start)
-                    : "Today"}
-              </span>
-            </div>
-
-            <div className={styles.preLiveMetricGrid}>
-              <div className={styles.preLiveMetric}>
-                <span className={styles.preLiveMetricLabel}>Sports in queue</span>
-                <span className={styles.preLiveMetricValue}>{sports.length}</span>
-              </div>
-              <div className={styles.preLiveMetric}>
-                <span className={styles.preLiveMetricLabel}>Active matches</span>
-                <span className={styles.preLiveMetricValue}>{activeLiveCount}</span>
-              </div>
-            </div>
-          </article>
-
-          <div className={styles.preLiveRail}>
-            {preLiveSports.map((sport, index) => (
-              <Link
-                className={styles.preLiveCard}
-                key={`prelive-${sport.id}`}
-                href={registrationUrl}
-                rel="noopener noreferrer"
-                style={{ "--prelive-accent": sport.accent } as CSSProperties}
-                target="_blank"
-              >
-                {sport.imageUrl ? (
-                  <div
-                    aria-hidden="true"
-                    className={styles.preLiveImage}
-                    style={{ backgroundImage: `url(${sport.imageUrl})` } as CSSProperties}
-                  />
-                ) : null}
-                <div className={styles.preLiveShade} aria-hidden="true" />
-                <span className={styles.preLiveIndex}>{String(index + 1).padStart(2, "0")}</span>
-                <h3 className={styles.preLiveTitle}>{sport.name}</h3>
-                <p className={styles.preLiveText}>{sport.tagline}</p>
-                <span className={styles.preLiveTag}>Arena lane {index + 1}</span>
-              </Link>
-            ))}
-          </div>
+        <div className={styles.sportRail}>
+          {sports.map((sport, index) => (
+            <Link
+              className={styles.gameLinkReset}
+              href={registrationUrl}
+              key={sport.id}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <SportHighlightTile
+                accent={sport.accent}
+                className=""
+                imageUrl={sport.imageUrl}
+                label="UDGAM sport"
+                pattern={tilePatterns[index % tilePatterns.length]}
+                text={sport.tagline}
+                title={sport.name}
+              />
+            </Link>
+          ))}
         </div>
       </section>
 
@@ -274,36 +235,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className={styles.sportsSection}>
-        <SectionHeading
-          eyebrow="Sports"
-          text="Indoor sports, outdoor contests, and e-sports all come together under one festival." 
-          title="Compete across every arena."
-        />
-
-        <div className={styles.sportRail}>
-          {sports.map((sport, index) => (
-            <Link
-              className={styles.gameLinkReset}
-              href={registrationUrl}
-              key={sport.id}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <SportHighlightTile
-                accent={sport.accent}
-                className=""
-                imageUrl={sport.imageUrl}
-                label="UDGAM sport"
-                pattern={tilePatterns[index % tilePatterns.length]}
-                text={sport.tagline}
-                title={sport.name}
-              />
-            </Link>
-          ))}
-        </div>
-      </section>
-
       <section className={styles.sportSpotlightSection}>
         <SectionHeading
           eyebrow="Spotlight"
@@ -333,41 +264,6 @@ export default async function HomePage() {
               <h3 className={styles.spotlightTitle}>{sport.name}</h3>
               <p className={styles.spotlightText}>{sport.tagline}</p>
             </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.sportStatsSection}>
-        <SectionHeading
-          eyebrow="Sports Pulse"
-          text="A quick pulse check of the competition roster currently live in your data feed."
-          title="Festival sports at a glance."
-        />
-
-        <div className={styles.sportStatsGrid}>
-          <article className={styles.sportStatCard}>
-            <span className={styles.sportStatLabel}>Total sports</span>
-            <span className={styles.sportStatValue}>{sports.length}</span>
-          </article>
-          <article className={styles.sportStatCard}>
-            <span className={styles.sportStatLabel}>With gallery image</span>
-            <span className={styles.sportStatValue}>{imageReadySportCount}</span>
-          </article>
-          <article className={styles.sportStatCard}>
-            <span className={styles.sportStatLabel}>Arena sports</span>
-            <span className={styles.sportStatValue}>{arenaSportsCount}</span>
-          </article>
-          <article className={styles.sportStatCard}>
-            <span className={styles.sportStatLabel}>E-sports + mind games</span>
-            <span className={styles.sportStatValue}>{esportsCount}</span>
-          </article>
-        </div>
-
-        <div className={styles.sportNameRail}>
-          {sports.map((sport) => (
-            <span className={styles.sportNamePill} key={`pill-${sport.id}`}>
-              {sport.name}
-            </span>
           ))}
         </div>
       </section>
