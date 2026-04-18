@@ -29,13 +29,41 @@ const committeeSlots = [
   "Traditional Committee",
 ];
 
+const committeeImageFiles = [
+  "ACCOMMODATION .JPG",
+  "Design.JPG",
+  "Logistics & Hospitality .JPG",
+  "Media Productions.JPG",
+  "Medical and safeguarding .JPG",
+  "Refreshments.JPG",
+  "Registration committee .JPG",
+  "TRADITIONAL COMMITTEE .JPG",
+  "Transportation.JPG",
+  "Website.JPG",
+];
+
 function normalizeCommitteeName(value: string) {
   return value
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\bsafe\s*guard\b/g, "safeguarding")
     .replace(/\bcommittee\b/g, "")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function getCommitteeImageSrc(title: string) {
+  const normalizedTitle = normalizeCommitteeName(title);
+
+  for (const imageFile of committeeImageFiles) {
+    const baseName = imageFile.replace(/\.[^.]+$/, "").trim();
+
+    if (normalizeCommitteeName(baseName) === normalizedTitle) {
+      return `/committe/${encodeURIComponent(imageFile)}`;
+    }
+  }
+
+  return null;
 }
 
 export default async function RegistrationsPage() {
@@ -84,17 +112,19 @@ export default async function RegistrationsPage() {
       <div className={styles.gridTwo}>
         {slottedRegistrations.map(({ slot, entry }) => {
           if (!entry) {
+            const slotImageSrc = getCommitteeImageSrc(slot);
+
             return (
               <article className={styles.darkCard} key={`slot-${slot}`}>
                 <p className={styles.darkEyebrow}>Committee</p>
                 <h2 className={styles.title}>{slot}</h2>
                 <p className={styles.darkText}>Slot reserved. Submission pending.</p>
-                {slot === "Design" ? (
+                {slotImageSrc ? (
                   <Image
-                    alt="Design committee visual"
+                    alt={`${slot} visual`}
                     className={styles.sportCardImage}
                     height={320}
-                    src="/committe/Design.JPG"
+                    src={slotImageSrc}
                     width={320}
                   />
                 ) : null}
@@ -108,6 +138,7 @@ export default async function RegistrationsPage() {
 
           const headImageSrc = entry.imageUrl.trimStart();
           const coHeadImageSrc = (entry.coHeadImageUrl ?? entry.imageUrl).trimStart();
+          const committeeImageSrc = getCommitteeImageSrc(entry.title);
 
           return (
             <article className={styles.darkCard} key={entry.id}>
@@ -117,26 +148,36 @@ export default async function RegistrationsPage() {
                 <span>Head: {entry.headName}</span>
                 <span>Co-head: {entry.coHeadName}</span>
               </div>
-              <div className={styles.gridTwo}>
-                <div>
-                  <Image
-                    alt={`${entry.headName} profile`}
-                    className={styles.sportCardImage}
-                    height={320}
-                    src={headImageSrc}
-                    width={320}
-                  />
+              {committeeImageSrc ? (
+                <Image
+                  alt={`${entry.title} visual`}
+                  className={styles.sportCardImage}
+                  height={320}
+                  src={committeeImageSrc}
+                  width={320}
+                />
+              ) : (
+                <div className={styles.gridTwo}>
+                  <div>
+                    <Image
+                      alt={`${entry.headName} profile`}
+                      className={styles.sportCardImage}
+                      height={320}
+                      src={headImageSrc}
+                      width={320}
+                    />
+                  </div>
+                  <div>
+                    <Image
+                      alt={`${entry.coHeadName} profile`}
+                      className={styles.sportCardImage}
+                      height={320}
+                      src={coHeadImageSrc}
+                      width={320}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Image
-                    alt={`${entry.coHeadName} profile`}
-                    className={styles.sportCardImage}
-                    height={320}
-                    src={coHeadImageSrc}
-                    width={320}
-                  />
-                </div>
-              </div>
+              )}
             </article>
           );
         })}
@@ -144,6 +185,7 @@ export default async function RegistrationsPage() {
         {additionalRegistrations.map((entry) => {
           const headImageSrc = entry.imageUrl.trimStart();
           const coHeadImageSrc = (entry.coHeadImageUrl ?? entry.imageUrl).trimStart();
+          const committeeImageSrc = getCommitteeImageSrc(entry.title);
 
           return (
             <article className={styles.darkCard} key={entry.id}>
@@ -153,26 +195,36 @@ export default async function RegistrationsPage() {
                 <span>Head: {entry.headName}</span>
                 <span>Co-head: {entry.coHeadName}</span>
               </div>
-              <div className={styles.gridTwo}>
-                <div>
-                  <Image
-                    alt={`${entry.headName} profile`}
-                    className={styles.sportCardImage}
-                    height={320}
-                    src={headImageSrc}
-                    width={320}
-                  />
+              {committeeImageSrc ? (
+                <Image
+                  alt={`${entry.title} visual`}
+                  className={styles.sportCardImage}
+                  height={320}
+                  src={committeeImageSrc}
+                  width={320}
+                />
+              ) : (
+                <div className={styles.gridTwo}>
+                  <div>
+                    <Image
+                      alt={`${entry.headName} profile`}
+                      className={styles.sportCardImage}
+                      height={320}
+                      src={headImageSrc}
+                      width={320}
+                    />
+                  </div>
+                  <div>
+                    <Image
+                      alt={`${entry.coHeadName} profile`}
+                      className={styles.sportCardImage}
+                      height={320}
+                      src={coHeadImageSrc}
+                      width={320}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Image
-                    alt={`${entry.coHeadName} profile`}
-                    className={styles.sportCardImage}
-                    height={320}
-                    src={coHeadImageSrc}
-                    width={320}
-                  />
-                </div>
-              </div>
+              )}
             </article>
           );
         })}
