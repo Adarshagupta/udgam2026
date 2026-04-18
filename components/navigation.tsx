@@ -7,6 +7,8 @@ import { usePathname } from "next/navigation";
 import logo from "@/app/assets/logo.png";
 import styles from "@/components/site.module.css";
 
+const registrationUrl = "https://payment.collexo.com/pay-fee/srm-ap-events";
+
 const links = [
   { href: "/", label: "Home" },
   { href: "/events", label: "Events" },
@@ -43,7 +45,12 @@ export function Navigation() {
           ))}
         </div>
 
-        <Link className={styles.navAction} href="/register/committee">
+        <Link
+          className={styles.navAction}
+          href={registrationUrl}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
           Register
         </Link>
       </nav>

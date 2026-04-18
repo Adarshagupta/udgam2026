@@ -6,6 +6,7 @@ import { formatDateTime } from "@/lib/utils";
 import styles from "@/app/subpage.module.css";
 
 export const dynamic = "force-dynamic";
+const registrationUrl = "https://payment.collexo.com/pay-fee/srm-ap-events";
 
 const divisionLabels: Record<CompetitionSummary["division"], string> = {
   MEN: "Men",
@@ -163,7 +164,14 @@ export default async function EventsPage({
         {filteredSports.map((sport) => (
           <article className={[styles.card, styles.sportCard].join(" ")} key={sport.id}>
             {sport.imageUrl ? (
-              <img alt={sport.name} className={styles.sportCardImage} src={sport.imageUrl} />
+              <a
+                aria-label={`Register for ${sport.name}`}
+                href={registrationUrl}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <img alt={sport.name} className={styles.sportCardImage} src={sport.imageUrl} />
+              </a>
             ) : null}
             <div className={styles.sportCardBody}>
               <p className={styles.eyebrow}>Competition lane</p>
@@ -203,11 +211,18 @@ export default async function EventsPage({
             {group.items.map((entry) => (
               <article className={`${styles.darkCard} ${styles.competitionCard}`} key={entry.id}>
                 {sportImageByName.get(normalizeSportName(entry.sportName)) ? (
-                  <img
-                    alt={entry.sportName}
-                    className={styles.competitionImage}
-                    src={sportImageByName.get(normalizeSportName(entry.sportName)) ?? ""}
-                  />
+                  <a
+                    aria-label={`Register for ${entry.sportName}`}
+                    href={registrationUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt={entry.sportName}
+                      className={styles.competitionImage}
+                      src={sportImageByName.get(normalizeSportName(entry.sportName)) ?? ""}
+                    />
+                  </a>
                 ) : null}
                 <p className={`${styles.darkEyebrow} ${styles.competitionEyebrow}`}>
                   {entry.sportName} • {divisionLabels[entry.division]}

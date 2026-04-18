@@ -30,6 +30,7 @@ import styles from "@/app/page.module.css";
 export const dynamic = "force-dynamic";
 
 const tilePatterns = ["grid", "rings", "ticks", "diagonal"] as const;
+const registrationUrl = "https://payment.collexo.com/pay-fee/srm-ap-events";
 
 const landingDisplayFont = Zen_Tokyo_Zoo({
   weight: "400",
@@ -109,7 +110,12 @@ export default async function HomePage() {
             </div>
 
             <div className={styles.heroActions}>
-              <Link className={siteStyles.primaryButton} href="/register/committee">
+              <Link
+                className={siteStyles.primaryButton}
+                href={registrationUrl}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
                 Register now
               </Link>
               <Link className={siteStyles.secondaryButton} href="/schedule">
@@ -395,7 +401,12 @@ export default async function HomePage() {
         </div>
 
         <div className={styles.finalActions}>
-          <Link className={siteStyles.primaryButton} href="/register/committee">
+          <Link
+            className={siteStyles.primaryButton}
+            href={registrationUrl}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
             Register now
           </Link>
           <Link className={siteStyles.secondaryLight} href="/updates">
