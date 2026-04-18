@@ -7,6 +7,18 @@ import styles from "@/app/subpage.module.css";
 
 export const dynamic = "force-dynamic";
 const registrationUrl = "https://payment.collexo.com/pay-fee/srm-ap-events";
+const rulebookBySportName = new Map([
+  ["basketball", "/rulebooks/BASKETBALL.pdf"],
+  ["bgmi", "/rulebooks/BGMI.pdf"],
+  ["chess", "/rulebooks/CHESS.pdf"],
+  ["football", "/rulebooks/FOOTBALL.pdf"],
+  ["free fire", "/rulebooks/FREE%20FIRE.pdf"],
+  ["kabaddi", "/rulebooks/KABADDI.pdf"],
+  ["real cricket", "/rulebooks/REAL%20CRICKET.pdf"],
+  ["table tennis", "/rulebooks/TABLE%20TENNIS.pdf"],
+  ["valorant", "/rulebooks/VALORANT.pdf"],
+  ["volleyball", "/rulebooks/VOLLEYBALL.pdf"],
+]);
 
 const divisionLabels: Record<CompetitionSummary["division"], string> = {
   MEN: "Men",
@@ -177,25 +189,39 @@ export default async function EventsPage({
       </div>
 
       <div className={styles.gridTwo}>
-        {orderedSports.map((sport) => (
-          <article className={[styles.card, styles.sportCard].join(" ")} key={sport.id}>
-            {sport.imageUrl ? (
-              <a
-                aria-label={`Register for ${sport.name}`}
-                href={registrationUrl}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <img alt={sport.name} className={styles.sportCardImage} src={sport.imageUrl} />
-              </a>
-            ) : null}
-            <div className={styles.sportCardBody}>
-              <p className={styles.eyebrow}>Competition lane</p>
-              <h2 className={styles.title}>{sport.name}</h2>
-              <p className={styles.text}>{sport.tagline}</p>
-            </div>
-          </article>
-        ))}
+        {orderedSports.map((sport) => {
+          const rulebookUrl = rulebookBySportName.get(normalizeSportName(sport.name)) ?? null;
+
+          return (
+            <article className={[styles.card, styles.sportCard].join(" ")} key={sport.id}>
+              {sport.imageUrl ? (
+                <a
+                  aria-label={`Register for ${sport.name}`}
+                  href={registrationUrl}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <img alt={sport.name} className={styles.sportCardImage} src={sport.imageUrl} />
+                </a>
+              ) : null}
+              <div className={styles.sportCardBody}>
+                <p className={styles.eyebrow}>Competition lane</p>
+                <h2 className={styles.title}>{sport.name}</h2>
+                <p className={styles.text}>{sport.tagline}</p>
+                {rulebookUrl ? (
+                  <a
+                    className={styles.rulebookButton}
+                    href={rulebookUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    View Rulebook
+                  </a>
+                ) : null}
+              </div>
+            </article>
+          );
+        })}
       </div>
 
       {!filteredSports.length && !competitionGroups.length ? (
