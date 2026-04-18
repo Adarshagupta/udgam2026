@@ -31,10 +31,13 @@ const committeeSlots = [
 
 const committeeImageFiles = [
   "ACCOMMODATION .JPG",
+  "Cultural.JPG",
   "Design.JPG",
   "Logistics & Hospitality .JPG",
   "Media Productions.JPG",
   "Medical and safeguarding .JPG",
+  "Postproduction.jpeg",
+  "Publicrelation.jpeg",
   "Refreshments.JPG",
   "Registration committee .JPG",
   "TRADITIONAL COMMITTEE .JPG",
@@ -46,6 +49,8 @@ function normalizeCommitteeName(value: string) {
   return value
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\bpostproduction\b/g, "post production")
+    .replace(/\bpublicrelation\b/g, "public relations")
     .replace(/\bsafe\s*guard\b/g, "safeguarding")
     .replace(/\bcommittee\b/g, "")
     .replace(/\s+/g, " ")
