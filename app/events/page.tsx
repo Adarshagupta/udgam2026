@@ -72,6 +72,12 @@ function normalizeSportName(value: string) {
   return value.trim().toLowerCase();
 }
 
+function isEsportSport(value: string) {
+  return /\bbgmi\b|\bvalorant\b|\breal cricket\b|\bfree fire\b|\bpubg\b|\bcod\b/i.test(
+    value,
+  );
+}
+
 export default async function EventsPage({
   searchParams,
 }: {
@@ -92,6 +98,16 @@ export default async function EventsPage({
           matchesSportQuery(sport.tagline, normalizedQuery),
       )
     : sports;
+  const orderedSports = [...filteredSports].sort((left, right) => {
+    const leftIsEsport = isEsportSport(left.name);
+    const rightIsEsport = isEsportSport(right.name);
+
+    if (leftIsEsport !== rightIsEsport) {
+      return leftIsEsport ? 1 : -1;
+    }
+
+    return left.name.localeCompare(right.name);
+  });
   const filteredCompetitions = normalizedQuery
     ? competitions.filter(
         (entry) =>
@@ -161,7 +177,7 @@ export default async function EventsPage({
       </div>
 
       <div className={styles.gridTwo}>
-        {filteredSports.map((sport) => (
+        {orderedSports.map((sport) => (
           <article className={[styles.card, styles.sportCard].join(" ")} key={sport.id}>
             {sport.imageUrl ? (
               <a

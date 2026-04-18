@@ -54,7 +54,6 @@ export function LiveGalleryRail({
         <div className={styles.header}>
           <div>
             <h3 className={styles.title}>{title}</h3>
-            <p className={styles.hint}>{hint}</p>
           </div>
           <span className={styles.statusPill}>{visibleImages.length} frames</span>
         </div>
@@ -75,9 +74,7 @@ export function LiveGalleryRail({
             </article>
           ))}
         </div>
-      ) : (
-        <div className={styles.empty}>Uploads will appear here once the gallery desk goes live.</div>
-      )}
+      ) : null}
     </section>
   );
 }
