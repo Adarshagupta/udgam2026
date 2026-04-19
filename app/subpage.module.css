@@ -168,6 +168,10 @@
   border: 1px solid var(--line-strong);
 }
 
+.executiveImageAdjust {
+  object-position: center 18%;
+}
+
 .sportCardBody {
   display: grid;
   gap: 0.75rem;

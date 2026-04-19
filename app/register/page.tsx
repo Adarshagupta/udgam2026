@@ -29,6 +29,46 @@ const committeeSlots = [
   "Traditional Committee",
 ];
 
+const executiveHeads = [
+  {
+    committeeName: "Head of Udgam",
+    executiveName: "Peketi Jaswanth Reddy",
+    imageSrc: "/committe/Jaswanth%20Reddy.JPG",
+    imagePosition: "center 8%",
+  },
+  {
+    committeeName: "Head of Hospitality",
+    executiveName: "Tarun Jallepalli",
+    imageSrc: "/committe/tarun.JPG",
+    imagePosition: "center 28%",
+  },
+  {
+    committeeName: "Head of Design & Media Productions",
+    executiveName: "Shaik Muneer Irfan",
+    imageSrc: "/committe/SHAIK%20MUNEER%20IRFAN.JPG",
+  },
+  {
+    committeeName: "Head of admistration",
+    executiveName: "Ravi Shankar",
+    imageSrc: "/committe/Ravi.JPG",
+  },
+  {
+    committeeName: "Head of Traditional and informal",
+    executiveName: "A.Teja manoj kumar",
+    imageSrc: "/committe/Teja%20manoj%20kumar.JPG",
+  },
+  {
+    committeeName: "Head Of Publicity",
+    executiveName: "Devalla Jyothi Swaroop raj",
+    imageSrc: "/committe/Swaroop.jpg",
+  },
+  {
+    committeeName: "Head of Medical & safeguard, Refereshments and Public Relations",
+    executiveName: "Pradnish Chintada",
+    imageSrc: "/committe/Pradnish.JPG",
+  },
+];
+
 const committeeLeadsBySlot = new Map([
   ["Design", { headName: "Pabbathi Thrishanth Reddy", coHeadName: "Shilpi jha" }],
   [
@@ -48,7 +88,7 @@ const committeeLeadsBySlot = new Map([
     "Accommodation",
     { headName: "N .Sai Ganesh Reddy", coHeadName: "Ch.Yaswitha Reddy" },
   ],
-  ["Logistics & Hospitality", { headName: "Awaiting submission", coHeadName: "S.Vedhaaabhiram Reddy" }],
+  ["Logistics & Hospitality", { headName: "Sashank", coHeadName: "S.Vedhaaabhiram Reddy" }],
   ["Transportation", { headName: "Sandeep.Madala", coHeadName: "Jai Sai Raj" }],
   [
     "Cultural Committee",
@@ -62,13 +102,14 @@ const committeeLeadsBySlot = new Map([
 
 const committeeImageFiles = [
   "ACCOMMODATION .JPG",
-  "Cultural.JPG",
+  "Cultural.png",
   "Design.JPG",
+  "informal.png",
   "Logistics & Hospitality .JPG",
   "Media Productions.JPG",
   "Medical and safeguarding .JPG",
   "Postproduction.jpeg",
-  "Publicrelation.jpeg",
+  "Publicrelation.png",
   "Refreshments.JPG",
   "Registration committee .JPG",
   "TRADITIONAL COMMITTEE .JPG",
@@ -80,6 +121,8 @@ function normalizeCommitteeName(value: string) {
   return value
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\binformal events?\b/g, "informal events")
+    .replace(/\binformal\b/g, "informal events")
     .replace(/\bpostproduction\b/g, "post production")
     .replace(/\bpublicrelation\b/g, "public relations")
     .replace(/\bsafe\s*guard\b/g, "safeguarding")
@@ -90,6 +133,10 @@ function normalizeCommitteeName(value: string) {
 
 function getCommitteeImageSrc(title: string) {
   const normalizedTitle = normalizeCommitteeName(title);
+
+  if (normalizedTitle.includes("informal events")) {
+    return "/committe/informal.png";
+  }
 
   for (const imageFile of committeeImageFiles) {
     const baseName = imageFile.replace(/\.[^.]+$/, "").trim();
@@ -146,6 +193,24 @@ export default async function RegistrationsPage() {
       />
 
       <div className={styles.gridTwo}>
+        {executiveHeads.map((entry) => (
+          <article className={styles.darkCard} key={`exec-${entry.committeeName}`}>
+            <p className={styles.darkEyebrow}>Executive</p>
+            <h2 className={styles.title}>{entry.committeeName}</h2>
+            <p className={styles.darkText}>Executive Name: {entry.executiveName}</p>
+            {entry.imageSrc ? (
+              <Image
+                alt={`${entry.executiveName} profile`}
+                className={`${styles.sportCardImage} ${styles.executiveImageAdjust}`}
+                height={320}
+                src={entry.imageSrc}
+                style={entry.imagePosition ? { objectPosition: entry.imagePosition } : undefined}
+                width={320}
+              />
+            ) : null}
+          </article>
+        ))}
+
         {slottedRegistrations.map(({ slot, entry }) => {
           if (!entry) {
             const slotImageSrc = getCommitteeImageSrc(slot);
