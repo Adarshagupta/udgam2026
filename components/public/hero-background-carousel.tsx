@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 
 import styles from "@/app/page.module.css";
 
+const localHeroVideo = "/hero/heroo.mp4";
+
 const localHeroImages = [
   "/hero/image.png",
   "/hero/Screenshot%202026-04-12%20182400.png",
@@ -21,6 +23,7 @@ interface HeroBackgroundCarouselProps {
 export function HeroBackgroundCarousel({ className = "" }: HeroBackgroundCarouselProps) {
   const [heroImages, setHeroImages] = useState<string[]>([...fallbackHeroImages]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [useVideoBackground, setUseVideoBackground] = useState(true);
 
   useEffect(() => {
     let isCancelled = false;
@@ -57,6 +60,10 @@ export function HeroBackgroundCarousel({ className = "" }: HeroBackgroundCarouse
   }, []);
 
   useEffect(() => {
+    if (useVideoBackground) {
+      return;
+    }
+
     if (heroImages.length === 0) {
       return;
     }
@@ -68,19 +75,33 @@ export function HeroBackgroundCarousel({ className = "" }: HeroBackgroundCarouse
     return () => {
       window.clearInterval(timer);
     };
-  }, [heroImages]);
+  }, [heroImages, useVideoBackground]);
 
   return (
     <div className={`${styles.heroBackdrop} ${className}`.trim()} aria-hidden="true">
-      {heroImages.map((imageUrl, index) => (
-        <div
-          className={`${styles.heroBackdropSlide} ${
-            index === activeIndex ? styles.heroBackdropSlideActive : ""
-          }`.trim()}
-          key={imageUrl}
-          style={{ backgroundImage: `url(${imageUrl})` }}
-        />
-      ))}
+      {useVideoBackground ? (
+        <video
+          autoPlay
+          className={styles.heroBackdropVideo}
+          loop
+          muted
+          onError={() => setUseVideoBackground(false)}
+          playsInline
+          preload="metadata"
+        >
+          <source src={localHeroVideo} type="video/mp4" />
+        </video>
+      ) : (
+        heroImages.map((imageUrl, index) => (
+          <div
+            className={`${styles.heroBackdropSlide} ${
+              index === activeIndex ? styles.heroBackdropSlideActive : ""
+            }`.trim()}
+            key={imageUrl}
+            style={{ backgroundImage: `url(${imageUrl})` }}
+          />
+        ))
+      )}
     </div>
   );
 }

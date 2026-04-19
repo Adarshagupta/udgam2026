@@ -3,13 +3,12 @@ import { Zen_Tokyo_Zoo } from "next/font/google";
 import type { CSSProperties } from "react";
 
 import { HeroBackgroundCarousel } from "@/components/public/hero-background-carousel";
-import { LiveGalleryRail } from "@/components/live/live-gallery-rail";
-import { LiveScoreBoard } from "@/components/live/live-score-board";
 import { SectionHeading } from "@/components/section-heading";
 import { ParallaxScene } from "@/components/public/parallax-scene";
 import { SportHighlightTile } from "@/components/public/sport-highlight-tile";
 import siteStyles from "@/components/site.module.css";
 import {
+  getCompetitionCatalog,
   getEvents,
   getGalleryImages,
   getMatches,
@@ -20,6 +19,7 @@ import type {
   EventSummary,
   GalleryItem,
   LiveMatch,
+  CompetitionSummary,
   ScheduleEntry,
   SportSummary,
 } from "@/lib/types";
@@ -32,6 +32,17 @@ export const dynamic = "force-dynamic";
 const tilePatterns = ["grid", "rings", "ticks", "diagonal"] as const;
 const registrationUrl = "https://payment.collexo.com/pay-fee/srm-ap-events";
 
+const esportsFallbackNames = new Set([
+  "bgmi",
+  "free fire",
+  "real cricket",
+  "valorant",
+]);
+
+function normalizeSportName(value: string) {
+  return value.trim().toLowerCase();
+}
+
 const landingDisplayFont = Zen_Tokyo_Zoo({
   weight: "400",
   subsets: ["latin"],
@@ -40,14 +51,16 @@ const landingDisplayFont = Zen_Tokyo_Zoo({
 });
 
 export default async function HomePage() {
-  const [sports, events, featuredMatches, featuredImages, schedule]: [
+  const [sports, competitions, events, featuredMatches, featuredImages, schedule]: [
     SportSummary[],
+    CompetitionSummary[],
     EventSummary[],
     LiveMatch[],
     GalleryItem[],
     ScheduleEntry[],
   ] = await Promise.all([
     getSports(),
+    getCompetitionCatalog(),
     getEvents(),
     getMatches({ featuredOnly: true }),
     getGalleryImages({ featuredOnly: true }),
@@ -57,7 +70,31 @@ export default async function HomePage() {
   const featureMatch = featuredMatches[0];
   const headlineEvent = events[0];
   const headlineGallery = featuredImages[0];
-  const spotlightSports = sports.slice(0, 3);
+
+  const esportsNames = new Set(
+    competitions
+      .filter((competition) => competition.kind === "ESPORT")
+      .map((competition) => normalizeSportName(competition.sportName)),
+  );
+
+  const esportsSports = sports.filter((sport) => {
+    const normalizedName = normalizeSportName(sport.name);
+    return esportsNames.has(normalizedName) || esportsFallbackNames.has(normalizedName);
+  });
+  const arenaSports = sports.filter(
+    (sport) => !esportsSports.some((esport) => esport.id === sport.id),
+  );
+
+  const categorySpotlights = [
+    ...arenaSports.slice(0, 2).map((sport) => ({
+      ...sport,
+      label: "Sports arena",
+    })),
+    ...esportsSports.slice(0, 2).map((sport) => ({
+      ...sport,
+      label: "Esports arena",
+    })),
+  ];
 
   return (
     <div className={`${styles.page} ${landingDisplayFont.variable}`}>
@@ -166,84 +203,91 @@ export default async function HomePage() {
 
       <section className={styles.sportsSection}>
         <SectionHeading
-          eyebrow="Sports"
-          text="Indoor sports, outdoor contests, and e-sports all come together under one festival." 
-          title="Compete across every arena."
+          eyebrow="Categories"
+          text="Browse competitions by category and jump straight into your preferred arena." 
+          title="Choose your battleground."
         />
 
-        <div className={styles.sportRail}>
-          {sports.map((sport, index) => (
-            <Link
-              className={styles.gameLinkReset}
-              href={registrationUrl}
-              key={sport.id}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <SportHighlightTile
-                accent={sport.accent}
-                className=""
-                imageUrl={sport.imageUrl}
-                label="UDGAM sport"
-                pattern={tilePatterns[index % tilePatterns.length]}
-                text={sport.tagline}
-                title={sport.name}
-              />
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.liveSection}>
-        <div className={styles.liveSectionTop}>
-          <div className={styles.liveHeadingShell}>
-            <SectionHeading
-              eyebrow="Live sports"
-              text="Follow ongoing fixtures, scorelines, and key match moments across venues."
-              title="Matchday highlights."
-            />
-          </div>
-
-          <div className={styles.routeGrid}>
-            {schedule.slice(0, 2).map((entry) => (
-              <article className={styles.routeCard} key={entry.id}>
-                <div className={styles.routeCardTop}>
-                  <span className={styles.routeType}>{entry.type}</span>
-                  <span className={styles.routeMeta}>{formatDateTime(entry.time)}</span>
-                </div>
-                <span className={styles.routeTitle}>{entry.title}</span>
-                <span className={styles.routeDetail}>{entry.detail}</span>
-              </article>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.liveSplit}>
-          <div className={styles.livePanel}>
-            <LiveScoreBoard compact initialMatches={featuredMatches} />
-          </div>
-
-          <div className={styles.livePanel}>
-            <div className={styles.galleryLead}>
-              <span className={styles.galleryLeadEyebrow}>Live gallery</span>
-              <h3 className={styles.galleryLeadTitle}>Ground cuts.</h3>
-              <p className={styles.galleryLeadText}>Warmups, moments, final whistles.</p>
+        <div className={styles.categoryGrid}>
+          <article className={styles.categoryPanel}>
+            <div className={styles.categoryPanelHead}>
+              <span className={styles.categoryBadge}>Sports</span>
+              <h3 className={styles.categoryTitle}>Classic Sports</h3>
+              <p className={styles.categoryText}>
+                Court, field, and strategy-heavy games across indoor and outdoor arenas.
+              </p>
             </div>
 
-            <LiveGalleryRail compact initialImages={featuredImages} />
-          </div>
+            <div className={styles.sportRail}>
+              {arenaSports.map((sport, index) => (
+                <Link
+                  className={styles.gameLinkReset}
+                  href={registrationUrl}
+                  key={`sport-${sport.id}`}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <SportHighlightTile
+                    accent={sport.accent}
+                    className=""
+                    imageUrl={sport.imageUrl}
+                    label="UDGAM sport"
+                    meta="Sports"
+                    pattern={tilePatterns[index % tilePatterns.length]}
+                    text={sport.tagline}
+                    title={sport.name}
+                  />
+                </Link>
+              ))}
+            </div>
+          </article>
+
+          <article className={styles.categoryPanel}>
+            <div className={styles.categoryPanelHead}>
+              <span className={`${styles.categoryBadge} ${styles.categoryBadgeEsports}`}>
+                Esports
+              </span>
+              <h3 className={styles.categoryTitle}>Digital Arenas</h3>
+              <p className={styles.categoryText}>
+                Tactical shooters and battle royale titles built for quick comms and precision plays.
+              </p>
+            </div>
+
+            <div className={styles.sportRail}>
+              {esportsSports.map((sport, index) => (
+                <Link
+                  className={styles.gameLinkReset}
+                  href={registrationUrl}
+                  key={`esport-${sport.id}`}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <SportHighlightTile
+                    accent={sport.accent}
+                    className=""
+                    imageUrl={sport.imageUrl}
+                    label="UDGAM esports"
+                    meta="Esports"
+                    pattern={tilePatterns[index % tilePatterns.length]}
+                    text={sport.tagline}
+                    title={sport.name}
+                  />
+                </Link>
+              ))}
+            </div>
+          </article>
         </div>
       </section>
 
       <section className={styles.sportSpotlightSection}>
         <SectionHeading
           eyebrow="Spotlight"
-          text="Big disciplines, loud matchups, and crowd-favorite arenas shaping this season."
-          title="Featured sports right now."
+          text="Top picks from both categories so every visitor quickly finds their format."
+          title="Featured across Sports and Esports."
         />
 
         <div className={styles.spotlightGrid}>
-          {spotlightSports.map((sport) => (
+          {categorySpotlights.map((sport) => (
             <Link
               className={styles.spotlightCard}
               href={registrationUrl}
@@ -260,7 +304,7 @@ export default async function HomePage() {
                 />
               ) : null}
               <div className={styles.spotlightShade} aria-hidden="true" />
-              <span className={styles.spotlightKicker}>UDGAM spotlight</span>
+              <span className={styles.spotlightKicker}>{sport.label}</span>
               <h3 className={styles.spotlightTitle}>{sport.name}</h3>
               <p className={styles.spotlightText}>{sport.tagline}</p>
             </Link>

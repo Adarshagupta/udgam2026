@@ -44,12 +44,30 @@ async function withReadFallback<T>(
       typeof error.code === "string"
         ? error.code
         : "";
+    const isPrismaReadInfraIssue =
+      errorCode === "P1000" ||
+      errorCode === "P1001" ||
+      errorCode === "P1002" ||
+      errorCode === "P1010" ||
+      errorCode === "P1011" ||
+      errorCode === "P2021" ||
+      errorCode === "P2022";
+    const isPrismaReadSchemaIssue =
+      message.includes("does not exist") ||
+      message.includes("Unknown field") ||
+      message.includes("Unknown argument") ||
+      message.includes("column") && message.includes("does not exist");
     const isTransientConnectionIssue =
       errorCode === "P1017" ||
       message.includes("Server has closed the connection") ||
       message.includes("Connection terminated unexpectedly") ||
       message.includes("Can't reach database server") ||
       message.includes("ConnectionClosed");
+    const shouldFallbackToDemo =
+      env.demoMode ||
+      isTransientConnectionIssue ||
+      isPrismaReadInfraIssue ||
+      isPrismaReadSchemaIssue;
 
     if (isTransientConnectionIssue) {
       await resetPrismaClient();
@@ -57,7 +75,33 @@ async function withReadFallback<T>(
       try {
         return await operation();
       } catch (retryError) {
-        if (env.demoMode) {
+        const retryCode =
+          typeof retryError === "object" &&
+          retryError &&
+          "code" in retryError &&
+          typeof retryError.code === "string"
+            ? retryError.code
+            : "";
+        const retryMessage = retryError instanceof Error ? retryError.message : String(retryError);
+        const shouldRetryFallback =
+          env.demoMode ||
+          retryCode === "P1000" ||
+          retryCode === "P1001" ||
+          retryCode === "P1002" ||
+          retryCode === "P1010" ||
+          retryCode === "P1011" ||
+          retryCode === "P1017" ||
+          retryCode === "P2021" ||
+          retryCode === "P2022" ||
+          retryMessage.includes("Server has closed the connection") ||
+          retryMessage.includes("Connection terminated unexpectedly") ||
+          retryMessage.includes("Can't reach database server") ||
+          retryMessage.includes("ConnectionClosed") ||
+          retryMessage.includes("does not exist") ||
+          retryMessage.includes("Unknown field") ||
+          retryMessage.includes("Unknown argument");
+
+        if (shouldRetryFallback) {
           return fallback();
         }
 
@@ -65,7 +109,7 @@ async function withReadFallback<T>(
       }
     }
 
-    if (env.demoMode) {
+    if (shouldFallbackToDemo) {
       return fallback();
     }
 
