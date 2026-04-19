@@ -44,8 +44,7 @@ const champions = [
       "Junior National Gold with a Junior National Record (October 2025), and Junior Asia medalist in Javelin Throw.",
   },
   {
-    name: "AISAN",
-    hideName: true,
+    name: "MUBASINA MUHAMMED",
     imageSrc: "/about/aisan.png",
     achievement:
       "Bronze - Junior World Championship, and representation at the Asian Games.",
