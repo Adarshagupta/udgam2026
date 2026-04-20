@@ -69,7 +69,6 @@ export default async function HomePage() {
 
   const featureMatch = featuredMatches[0];
   const headlineEvent = events[0];
-  const headlineGallery = featuredImages[0];
 
   const esportsNames = new Set(
     competitions
@@ -180,22 +179,9 @@ export default async function HomePage() {
           </article>
 
           <article className={`${styles.heroHighlight} ${styles.heroHighlightCool}`}>
-            <p className={styles.heroHighlightEyebrow}>Opening ceremony</p>
-            <h2 className={styles.heroHighlightTitle}>
-              {headlineEvent ? headlineEvent.title : "Opening Rally"}
-            </h2>
-            <p className={styles.heroHighlightText}>
-              {headlineEvent
-                ? `${headlineEvent.sport} / ${headlineEvent.venue}`
-                : "March past, flag walk-ins, and the first crowd swell on the main court."}
-            </p>
-            <div className={styles.heroHighlightTags}>
-              <span className={styles.heroHighlightTag}>
-                {headlineEvent ? formatDateTime(headlineEvent.start) : "10 Apr"}
-              </span>
-              <span className={styles.heroHighlightTag}>
-                {headlineGallery?.title ?? "Flare cam live"}
-              </span>
+            <h2 className={styles.heroHighlightTitle}>Inauguration</h2>
+            <div className={styles.heroHighlightMeta}>
+              <span>23 April</span>
             </div>
           </article>
         </div>

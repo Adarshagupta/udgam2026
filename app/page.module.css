@@ -367,6 +367,10 @@
 .heroHighlightCool {
   color: var(--ink-strong);
   background: transparent;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+  padding-top: 1rem;
 }
 
 .heroHighlightCool::before {
@@ -378,6 +382,11 @@
     ),
     radial-gradient(circle at 18% 18%, rgba(18, 214, 203, 0.18), transparent 18%),
     linear-gradient(140deg, rgba(255, 248, 240, 0.98), rgba(227, 220, 210, 0.92));
+}
+
+.heroHighlightCool .heroHighlightMeta {
+  justify-content: center;
+  margin-top: 0;
 }
 
 .heroHighlightEyebrow,
