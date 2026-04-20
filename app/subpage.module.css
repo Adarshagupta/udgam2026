@@ -127,6 +127,26 @@
   gap: 1.2rem 1.4rem;
 }
 
+.memberSection {
+  display: grid;
+  gap: 1rem;
+}
+
+.memberSection + .memberSection {
+  margin-top: 1.4rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--line-strong);
+}
+
+.memberSectionLabel {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
 .gridThree {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

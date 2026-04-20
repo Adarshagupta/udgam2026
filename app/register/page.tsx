@@ -152,7 +152,8 @@ function getCommitteeImageSrc(title: string) {
 export default async function RegistrationsPage() {
   const registrations = await getCommitteeRegistrations();
   const seenTitles = new Set<string>();
-  const uniqueRegistrations = registrations.filter((entry) => {
+  const committeeRegistrations = registrations.filter((entry) => entry.category === "COMMITTEE");
+  const uniqueRegistrations = committeeRegistrations.filter((entry) => {
     const normalizedTitle = normalizeCommitteeName(entry.title);
 
     if (seenTitles.has(normalizedTitle)) {
@@ -192,26 +193,33 @@ export default async function RegistrationsPage() {
         title="Committees"
       />
 
-      <div className={styles.gridTwo}>
-        {executiveHeads.map((entry) => (
-          <article className={styles.darkCard} key={`exec-${entry.committeeName}`}>
-            <p className={styles.darkEyebrow}>Executive</p>
-            <h2 className={styles.title}>{entry.committeeName}</h2>
-            <p className={styles.darkText}>Executive Name: {entry.executiveName}</p>
-            {entry.imageSrc ? (
-              <Image
-                alt={`${entry.executiveName} profile`}
-                className={`${styles.sportCardImage} ${styles.executiveImageAdjust}`}
-                height={320}
-                src={entry.imageSrc}
-                style={entry.imagePosition ? { objectPosition: entry.imagePosition } : undefined}
-                width={320}
-              />
-            ) : null}
-          </article>
-        ))}
+      <section className={styles.memberSection}>
+        <p className={styles.memberSectionLabel}>Executive members</p>
+        <div className={styles.gridTwo}>
+          {executiveHeads.map((entry) => (
+            <article className={styles.darkCard} key={`exec-${entry.committeeName}`}>
+              <p className={styles.darkEyebrow}>Executive</p>
+              <h2 className={styles.title}>{entry.committeeName}</h2>
+              <p className={styles.darkText}>Executive Name: {entry.executiveName}</p>
+              {entry.imageSrc ? (
+                <Image
+                  alt={`${entry.executiveName} profile`}
+                  className={`${styles.sportCardImage} ${styles.executiveImageAdjust}`}
+                  height={320}
+                  src={entry.imageSrc}
+                  style={entry.imagePosition ? { objectPosition: entry.imagePosition } : undefined}
+                  width={320}
+                />
+              ) : null}
+            </article>
+          ))}
+        </div>
+      </section>
 
-        {slottedRegistrations.map(({ slot, entry }) => {
+      <section className={styles.memberSection}>
+        <p className={styles.memberSectionLabel}>Committee members</p>
+        <div className={styles.gridTwo}>
+          {slottedRegistrations.map(({ slot, entry }) => {
           if (!entry) {
             const slotImageSrc = getCommitteeImageSrc(slot);
             const slotLeads = committeeLeadsBySlot.get(slot) ?? {
@@ -286,53 +294,54 @@ export default async function RegistrationsPage() {
           );
         })}
 
-        {additionalRegistrations.map((entry) => {
-          const headImageSrc = entry.imageUrl.trimStart();
-          const coHeadImageSrc = (entry.coHeadImageUrl ?? entry.imageUrl).trimStart();
-          const committeeImageSrc = getCommitteeImageSrc(entry.title);
+          {additionalRegistrations.map((entry) => {
+            const headImageSrc = entry.imageUrl.trimStart();
+            const coHeadImageSrc = (entry.coHeadImageUrl ?? entry.imageUrl).trimStart();
+            const committeeImageSrc = getCommitteeImageSrc(entry.title);
 
-          return (
-            <article className={styles.darkCard} key={entry.id}>
-              <p className={styles.darkEyebrow}>{entry.category}</p>
-              <h2 className={styles.title}>{entry.title}</h2>
-              <div className={styles.metaRow}>
-                <span>Head: {entry.headName}</span>
-                <span>Co-head: {entry.coHeadName}</span>
-              </div>
-              {committeeImageSrc ? (
-                <Image
-                  alt={`${entry.title} visual`}
-                  className={styles.sportCardImage}
-                  height={320}
-                  src={committeeImageSrc}
-                  width={320}
-                />
-              ) : (
-                <div className={styles.gridTwo}>
-                  <div>
-                    <Image
-                      alt={`${entry.headName} profile`}
-                      className={styles.sportCardImage}
-                      height={320}
-                      src={headImageSrc}
-                      width={320}
-                    />
-                  </div>
-                  <div>
-                    <Image
-                      alt={`${entry.coHeadName} profile`}
-                      className={styles.sportCardImage}
-                      height={320}
-                      src={coHeadImageSrc}
-                      width={320}
-                    />
-                  </div>
+            return (
+              <article className={styles.darkCard} key={entry.id}>
+                <p className={styles.darkEyebrow}>{entry.category}</p>
+                <h2 className={styles.title}>{entry.title}</h2>
+                <div className={styles.metaRow}>
+                  <span>Head: {entry.headName}</span>
+                  <span>Co-head: {entry.coHeadName}</span>
                 </div>
-              )}
-            </article>
-          );
-        })}
-      </div>
+                {committeeImageSrc ? (
+                  <Image
+                    alt={`${entry.title} visual`}
+                    className={styles.sportCardImage}
+                    height={320}
+                    src={committeeImageSrc}
+                    width={320}
+                  />
+                ) : (
+                  <div className={styles.gridTwo}>
+                    <div>
+                      <Image
+                        alt={`${entry.headName} profile`}
+                        className={styles.sportCardImage}
+                        height={320}
+                        src={headImageSrc}
+                        width={320}
+                      />
+                    </div>
+                    <div>
+                      <Image
+                        alt={`${entry.coHeadName} profile`}
+                        className={styles.sportCardImage}
+                        height={320}
+                        src={coHeadImageSrc}
+                        width={320}
+                      />
+                    </div>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      </section>
 
       {!uniqueRegistrations.length ? (
         <article className={styles.card}>
