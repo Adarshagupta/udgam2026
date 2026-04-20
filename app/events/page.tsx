@@ -8,6 +8,7 @@ import styles from "@/app/subpage.module.css";
 export const dynamic = "force-dynamic";
 const registrationUrl = "https://payment.collexo.com/pay-fee/srm-ap-events";
 const rulebookBySportName = new Map([
+  ["badminton", "/rulebooks/BADMINTON.pdf"],
   ["basketball", "/rulebooks/BASKETBALL.pdf"],
   ["bgmi", "/rulebooks/BGMI.pdf"],
   ["chess", "/rulebooks/CHESS.pdf"],
