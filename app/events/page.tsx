@@ -21,6 +21,10 @@ const rulebookBySportName = new Map([
   ["volleyball", "/rulebooks/VOLLEYBALL.pdf"],
 ]);
 
+const rulebookFallbackMatchers: Array<{ pattern: RegExp; url: string }> = [
+  { pattern: /\bbadmint?on\b|\bbadmimton\b/i, url: "/rulebooks/BADMINTON.pdf" },
+];
+
 const divisionLabels: Record<CompetitionSummary["division"], string> = {
   MEN: "Men",
   WOMEN: "Women",
@@ -82,7 +86,35 @@ function matchesSportQuery(value: string, query: string) {
 }
 
 function normalizeSportName(value: string) {
-  return value.trim().toLowerCase();
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function resolveRulebookUrl(value: string) {
+  const normalizedName = normalizeSportName(value);
+  const exactMatch = rulebookBySportName.get(normalizedName);
+
+  if (exactMatch) {
+    return exactMatch;
+  }
+
+  for (const [key, url] of rulebookBySportName.entries()) {
+    if (normalizedName.includes(key) || key.includes(normalizedName)) {
+      return url;
+    }
+  }
+
+  for (const fallback of rulebookFallbackMatchers) {
+    if (fallback.pattern.test(normalizedName)) {
+      return fallback.url;
+    }
+  }
+
+  return null;
 }
 
 function isEsportSport(value: string) {
@@ -191,7 +223,7 @@ export default async function EventsPage({
 
       <div className={styles.gridTwo}>
         {orderedSports.map((sport) => {
-          const rulebookUrl = rulebookBySportName.get(normalizeSportName(sport.name)) ?? null;
+          const rulebookUrl = resolveRulebookUrl(sport.name);
 
           return (
             <article className={[styles.card, styles.sportCard].join(" ")} key={sport.id}>
