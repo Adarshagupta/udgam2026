@@ -45,7 +45,6 @@ export function Footer() {
           </div>
 
           <div className={styles.footerBottomRow}>
-            <p className={styles.footerText}>Sponsorship Head: Chinmaya Baki - 8096299900</p>
             <p className={styles.footerMini}>UDGAM 2026 • Amaravati Campus</p>
           </div>
         </div>
