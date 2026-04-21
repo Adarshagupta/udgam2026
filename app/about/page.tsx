@@ -186,7 +186,7 @@ export default function AboutPage() {
                 width={1280}
               />
               {champion.id ? <p className={styles.eyebrow}>{champion.id}</p> : null}
-              {champion.hideName ? null : <h3 className={styles.title}>{champion.name}</h3>}
+              <h3 className={styles.title}>{champion.name}</h3>
               <p className={styles.text}>{champion.achievement}</p>
             </article>
           ))}
