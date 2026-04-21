@@ -46,7 +46,7 @@ const champions = [
       "Bronze - Junior World Championship, and representation at the Asian Games.",
   },
   {
-    name: "Rauna Chauhan",
+    name: "Raunak Chauhan",
     imageSrc: "/about/karnataka.png",
     achievement:
       "Junior World Championship milestone with Karnataka International and Orissa International appearances.",
