@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Zen_Kaku_Gothic_New, Zen_Old_Mincho } from "next/font/google";
+import Script from "next/script";
 import type { ReactNode } from "react";
 
 import { LayoutShell } from "@/components/layout-shell";
@@ -48,6 +49,19 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <Providers>
           <LayoutShell>{children}</LayoutShell>
         </Providers>
+        <Script id="tawk-to" strategy="afterInteractive">
+          {`
+            var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+            (function(){
+              var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+              s1.async=true;
+              s1.src='https://embed.tawk.to/69e735bafb1b661c3429fe99/1jmnijpmj';
+              s1.charset='UTF-8';
+              s1.setAttribute('crossorigin','*');
+              s0.parentNode.insertBefore(s1,s0);
+            })();
+          `}
+        </Script>
       </body>
     </html>
   );
