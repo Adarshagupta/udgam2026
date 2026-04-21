@@ -130,6 +130,7 @@
 .memberSection {
   display: grid;
   gap: 1rem;
+  min-width: 0;
 }
 
 .memberSection + .memberSection {
@@ -145,6 +146,142 @@
   font-weight: 800;
   letter-spacing: 0.18em;
   text-transform: uppercase;
+}
+
+.horizontalScrollFrame {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  padding: 1rem 0 0.5rem;
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(239, 100, 57, 0.14), transparent 55%),
+    radial-gradient(120% 120% at 100% 100%, rgba(19, 38, 63, 0.16), transparent 60%),
+    linear-gradient(135deg, rgba(239, 100, 57, 0.06) 0%, rgba(19, 38, 63, 0.06) 100%);
+  border: 1px solid var(--line-strong);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 28px -22px rgba(19, 38, 63, 0.6);
+}
+
+.horizontalScrollFrame::before,
+.horizontalScrollFrame::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 56px;
+  pointer-events: none;
+  z-index: 2;
+  border-radius: inherit;
+}
+
+.horizontalScrollFrame::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--paper) 0%, rgba(248, 239, 230, 0) 100%);
+}
+
+.horizontalScrollFrame::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--paper) 0%, rgba(248, 239, 230, 0) 100%);
+}
+
+.horizontalScroll {
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 1.25rem 1rem;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) transparent;
+}
+
+.horizontalScroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.horizontalScroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-deep) 100%);
+  border-radius: 999px;
+}
+
+.horizontalScroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.horizontalScrollTrack {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1.2rem;
+  align-items: stretch;
+}
+
+.horizontalScrollItem {
+  flex: 0 0 auto;
+  width: min(340px, 82vw);
+  scroll-snap-align: start;
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 55%, var(--accent-deep) 100%);
+}
+
+.horizontalScrollItem::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-deep));
+  opacity: 0.85;
+  z-index: 1;
+}
+
+.horizontalScrollItem > * {
+  position: relative;
+  z-index: 1;
+}
+
+.horizontalScrollItem .darkEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem 0.65rem;
+  width: fit-content;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 91, 61, 0.28) 0%, rgba(195, 32, 18, 0.22) 100%);
+  border: 1px solid rgba(255, 91, 61, 0.45);
+  color: var(--paper);
+  backdrop-filter: blur(2px);
+}
+
+.horizontalScrollItem .title {
+  position: relative;
+  padding-bottom: 0.55rem;
+  background: linear-gradient(95deg, var(--paper-strong) 0%, #ffd7c7 60%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.horizontalScrollItem .title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 48px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-deep));
+}
+
+.horizontalScrollItem .sportCardImage {
+  position: relative;
+  padding: 3px;
+  border: none;
+  background:
+    linear-gradient(var(--brand-deep), var(--brand-deep)) padding-box,
+    linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 45%, rgba(255, 255, 255, 0.35) 100%) border-box;
+  border: 1px solid transparent;
+  box-shadow: 0 12px 30px -18px rgba(255, 91, 61, 0.75);
 }
 
 .gridThree {

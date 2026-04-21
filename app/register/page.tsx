@@ -195,24 +195,31 @@ export default async function RegistrationsPage() {
 
       <section className={styles.memberSection}>
         <p className={styles.memberSectionLabel}>Executive members</p>
-        <div className={styles.gridTwo}>
-          {executiveHeads.map((entry) => (
-            <article className={styles.darkCard} key={`exec-${entry.committeeName}`}>
-              <p className={styles.darkEyebrow}>Executive</p>
-              <h2 className={styles.title}>{entry.committeeName}</h2>
-              <p className={styles.darkText}>Executive Name: {entry.executiveName}</p>
-              {entry.imageSrc ? (
-                <Image
-                  alt={`${entry.executiveName} profile`}
-                  className={`${styles.sportCardImage} ${styles.executiveImageAdjust}`}
-                  height={320}
-                  src={entry.imageSrc}
-                  style={entry.imagePosition ? { objectPosition: entry.imagePosition } : undefined}
-                  width={320}
-                />
-              ) : null}
-            </article>
-          ))}
+        <div className={styles.horizontalScrollFrame}>
+          <div className={styles.horizontalScroll}>
+            <div className={styles.horizontalScrollTrack}>
+              {executiveHeads.map((entry) => (
+                <article
+                  className={`${styles.darkCard} ${styles.horizontalScrollItem}`}
+                  key={`exec-${entry.committeeName}`}
+                >
+                  <p className={styles.darkEyebrow}>Executive</p>
+                  <h2 className={styles.title}>{entry.committeeName}</h2>
+                  <p className={styles.darkText}>Executive Name: {entry.executiveName}</p>
+                  {entry.imageSrc ? (
+                    <Image
+                      alt={`${entry.executiveName} profile`}
+                      className={`${styles.sportCardImage} ${styles.executiveImageAdjust}`}
+                      height={320}
+                      src={entry.imageSrc}
+                      style={entry.imagePosition ? { objectPosition: entry.imagePosition } : undefined}
+                      width={320}
+                    />
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
