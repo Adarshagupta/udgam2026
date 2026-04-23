@@ -46,19 +46,19 @@ const champions = [
       "Bronze - Junior World Championship, and representation at the Asian Games.",
   },
   {
-    name: "Raunak Chauhan",
+    name: "RONAK CHAUHAN",
     imageSrc: "/about/karnataka.png",
     achievement:
       "Junior World Championship milestone with Karnataka International and Orissa International appearances.",
   },
   {
-    name: "Vishwa Tej and Bhargav Ram",
+    name: "VISHWA TEJ AND BAGORAM",
     imageSrc: "/about/yuganda.png",
     achievement:
       "Junior World Championship milestone and Yuganda International Gold Medal.",
   },
   {
-    name: "Numir Shaik",
+    name: "SHAIK NUMAIR",
     imageSrc: "/about/bangladesh.png",
     achievement:
       "Bangladesh International Championship achievement.",
