@@ -20,7 +20,7 @@ const committeeSlots = [
   "Registration",
   "Refreshments",
   "Medical and safe guard",
-  "Public Relations",
+  "Publicity",
   "Media Productions",
   "Accommodation",
   "Logistics & Hospitality",
@@ -79,7 +79,7 @@ const committeeLeadsBySlot = new Map([
   ["Registration", { headName: "Sanjeev Reddy", coHeadName: "jaswanth sai tangudu" }],
   ["Refreshments", { headName: "Varnash", coHeadName: "vamsi, Ankith" }],
   ["Medical and safe guard", { headName: "Jayanth", coHeadName: "keerthi" }],
-  ["Public Relations", { headName: "Chinmaya", coHeadName: "varun" }],
+  ["Publicity", { headName: "Likitha", coHeadName: "Dhanush" }],
   [
     "Media Productions",
     { headName: "Sabbani Sathwik", coHeadName: "Krishna Prajeeth" },
@@ -124,7 +124,8 @@ function normalizeCommitteeName(value: string) {
     .replace(/\binformal events?\b/g, "informal events")
     .replace(/\binformal\b/g, "informal events")
     .replace(/\bpostproduction\b/g, "post production")
-    .replace(/\bpublicrelation\b/g, "public relations")
+    .replace(/\bpublicrelation\b/g, "publicity")
+    .replace(/\bpublic relations?\b/g, "publicity")
     .replace(/\bsafe\s*guard\b/g, "safeguarding")
     .replace(/\bcommittee\b/g, "")
     .replace(/\s+/g, " ")
@@ -258,14 +259,18 @@ export default async function RegistrationsPage() {
           const headImageSrc = entry.imageUrl.trimStart();
           const coHeadImageSrc = (entry.coHeadImageUrl ?? entry.imageUrl).trimStart();
           const committeeImageSrc = getCommitteeImageSrc(entry.title);
+          const normalizedEntryTitle = normalizeCommitteeName(entry.title);
+          const displayTitle = normalizedEntryTitle === "publicity" ? "Publicity" : entry.title;
+          const displayHeadName = normalizedEntryTitle === "publicity" ? "Likitha" : entry.headName;
+          const displayCoHeadName = normalizedEntryTitle === "publicity" ? "Dhanush" : entry.coHeadName;
 
           return (
             <article className={styles.darkCard} key={entry.id}>
               <p className={styles.darkEyebrow}>{entry.category}</p>
-              <h2 className={styles.title}>{entry.title}</h2>
+              <h2 className={styles.title}>{displayTitle}</h2>
               <div className={styles.metaRow}>
-                <span>Head: {entry.headName}</span>
-                <span>Co-head: {entry.coHeadName}</span>
+                <span>Head: {displayHeadName}</span>
+                <span>Co-head: {displayCoHeadName}</span>
               </div>
               {committeeImageSrc ? (
                 <Image
@@ -305,14 +310,18 @@ export default async function RegistrationsPage() {
             const headImageSrc = entry.imageUrl.trimStart();
             const coHeadImageSrc = (entry.coHeadImageUrl ?? entry.imageUrl).trimStart();
             const committeeImageSrc = getCommitteeImageSrc(entry.title);
+            const normalizedEntryTitle = normalizeCommitteeName(entry.title);
+            const displayTitle = normalizedEntryTitle === "publicity" ? "Publicity" : entry.title;
+            const displayHeadName = normalizedEntryTitle === "publicity" ? "Likitha" : entry.headName;
+            const displayCoHeadName = normalizedEntryTitle === "publicity" ? "Dhanush" : entry.coHeadName;
 
             return (
               <article className={styles.darkCard} key={entry.id}>
                 <p className={styles.darkEyebrow}>{entry.category}</p>
-                <h2 className={styles.title}>{entry.title}</h2>
+                <h2 className={styles.title}>{displayTitle}</h2>
                 <div className={styles.metaRow}>
-                  <span>Head: {entry.headName}</span>
-                  <span>Co-head: {entry.coHeadName}</span>
+                  <span>Head: {displayHeadName}</span>
+                  <span>Co-head: {displayCoHeadName}</span>
                 </div>
                 {committeeImageSrc ? (
                   <Image
